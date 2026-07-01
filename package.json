@@ -1,0 +1,26 @@
+{
+  "name": "precedent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An ambient decision ledger for Slack — records what a team decided, why, what was rejected, and when a decision is later overturned, grounded in links to the source messages.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:core": "vitest run packages/ledger-core"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
