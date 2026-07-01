@@ -17,7 +17,9 @@
 
 1. **Slack AI capabilities**, 2. **MCP server integration**, or 3. **Real-Time Search (RTS) API**.
 
-Precedent uses **the RTS API** (recall backfill) and can consume the **Slack MCP server** for actions. ⚠️ **Nuance:** "MCP server integration" means integrating **Slack's** MCP server (`https://mcp.slack.com/mcp`) — *exposing our own MCP server does not, by itself, satisfy the rule.* Our own MCP server is a differentiator, not the compliance story; the RTS API (and/or consuming Slack's MCP server) is. Both surfaces require an **internal or directory-published** app; **semantic** RTS needs a **Slack AI–enabled** workspace.
+Precedent uses **the RTS API** (recall backfill) and consumes the **Slack MCP server** for actions.
+
+**New (June 2026) — Slackbot is now an MCP *client*.** You can connect *your own* MCP server to Slackbot and it auto-discovers and invokes your tools from conversation ([announcement](https://docs.slack.dev/changelog/2026/06/18/slackbot-mcp-client/), [blog](https://slack.com/blog/news/slackbots-mcp-client)). So connecting **Precedent's MCP server to Slackbot** — a user asks Slackbot *"have we decided X?"* → Slackbot calls `has_this_been_decided()` → answers with the current decision and its supersession — is both a native demo of *agents consulting Precedent* and a legitimate Slack-side MCP integration. (This softens an earlier caveat: an *isolated* self-hosted MCP server with no Slack consumer was the weak compliance story; Slackbot's client fixes it. Keep the RTS API in the demo regardless.) Auth options: Slack identity auth, no-auth, Dynamic Client Registration, or manual OAuth. Both MCP and RTS require an **internal or directory-published** app; **semantic** RTS needs a **Slack AI–enabled** workspace.
 
 ## Judging criteria (four, equally weighted)
 
@@ -39,7 +41,13 @@ How Precedent maps: **Tech** — deterministic core + RTS + our own MCP server (
 
 ## Getting access (critical path)
 
-Enroll in the **[Slack Developer Program](https://api.slack.com/developer-program)** → provision a free developer **sandbox** → register an app (internal) → add scopes (`search:read.public` + the manifest's bot scopes) → complete OAuth. Access is **self-serve** — there is no documented partnership waitlist. The real gates are structural: (a) the app must be internal/directory-published, and (b) **semantic** search needs a Slack AI–enabled plan; plain RTS/keyword works without it. Support flows through the **hackathon Slack channel**.
+Enroll in the **[Slack Developer Program](https://api.slack.com/developer-program)** (free), then provision a **developer sandbox** from the dashboard.
+
+⚠️ **Provisioning requires a paid-plan workspace OR a payment method on your developer workspace** — but the card is **for identity verification only; you are not charged**, and sandboxes are **free** (up to 10 over 30 days, 2 active at a time, 6 months each, up to 3 workspaces, 8 users, Free-plan message/file policies). Practical unblock: *add a card → provision → build.*
+
+⚠️ **Slack AI Search is not guaranteed in a sandbox** (they run at Free-plan level). Since **semantic** RTS needs a Slack AI–enabled workspace, plan to demo on **keyword** RTS for backfill; Precedent's core recall runs on the deterministic ledger regardless, so it degrades gracefully. Verify with `assistant.search.info`.
+
+Then register the app (internal) from [`manifest.json`](../../manifest.json) → add scopes → complete OAuth → grant test access to both submission emails. Support flows through the **hackathon Slack channel**.
 
 ## ⚠️ Discrepancies & risks (don't miss)
 
