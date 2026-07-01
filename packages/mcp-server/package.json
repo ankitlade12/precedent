@@ -1,0 +1,19 @@
+{
+  "name": "@precedent/mcp-server",
+  "version": "0.1.0",
+  "description": "Precedent's own MCP server: exposes the decision ledger to other agents via has_this_been_decided(), get_decision(), and list_decisions().",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@precedent/ledger-core": "^0.1.0",
+    "@precedent/proposer": "^0.1.0",
+    "zod": "^3.24.1"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}
