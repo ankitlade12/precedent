@@ -1,0 +1,13 @@
+{
+  "name": "@precedent/ledger-core",
+  "version": "0.1.0",
+  "description": "Deterministic, append-only decision ledger: content-addressed IDs, hash-chain integrity, and supersession resolution. Zero external runtime dependencies.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}
