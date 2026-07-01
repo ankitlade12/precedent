@@ -1,0 +1,16 @@
+{
+  "name": "@precedent/proposer",
+  "version": "0.1.0",
+  "description": "The model layer: detects candidate decisions in a thread and proposes structured records for human confirmation. Deterministic heuristic detector plus a provider-agnostic LLM port.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@precedent/ledger-core": "^0.1.0"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}
