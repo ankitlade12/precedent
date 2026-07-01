@@ -1,0 +1,18 @@
+{
+  "name": "@precedent/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Composition root: wires the ledger, model layer, Slack surface, and MCP server into one deployable process.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@precedent/ledger-core": "^0.1.0",
+    "@precedent/mcp-server": "^0.1.0",
+    "@precedent/proposer": "^0.1.0",
+    "@precedent/slack-app": "^0.1.0"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "test": "vitest run"
+  }
+}
