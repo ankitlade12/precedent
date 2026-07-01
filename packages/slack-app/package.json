@@ -1,0 +1,19 @@
+{
+  "name": "@precedent/slack-app",
+  "version": "0.1.0",
+  "description": "The Slack surface: a Bolt app with the in-channel decision proposal card (Confirm / Edit / Dismiss), the /precedent recall command, and message shortcuts.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@precedent/ledger-core": "^0.1.0",
+    "@precedent/proposer": "^0.1.0",
+    "@slack/bolt": "^4.7.0",
+    "@slack/types": "^2.11.0"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}
