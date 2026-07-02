@@ -14,6 +14,7 @@
   ],
   "scripts": {
     "start": "tsx apps/server/src/index.ts",
+    "eval": "tsx apps/server/src/eval.ts",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
