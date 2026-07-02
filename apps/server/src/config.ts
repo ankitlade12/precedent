@@ -14,6 +14,11 @@ export interface AppConfig {
 
 /** Load and validate configuration from the environment. Fails loudly on a missing secret. */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
+  const mcpPort = Number.parseInt(env.MCP_PORT ?? '3010', 10);
+  if (!Number.isInteger(mcpPort) || mcpPort < 1) {
+    throw new Error(`MCP_PORT must be a positive integer (got "${env.MCP_PORT ?? ''}").`);
+  }
+
   return {
     slack: {
       token: required(env, 'SLACK_BOT_TOKEN'),
@@ -21,7 +26,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       signingSecret: required(env, 'SLACK_SIGNING_SECRET'),
     },
     mcp: {
-      port: Number.parseInt(env.MCP_PORT ?? '3010', 10),
+      port: mcpPort,
       path: env.MCP_PATH ?? '/mcp',
       ...(env.MCP_BEARER_TOKEN !== undefined ? { bearerToken: env.MCP_BEARER_TOKEN } : {}),
     },

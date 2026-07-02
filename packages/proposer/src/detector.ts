@@ -57,14 +57,17 @@ function toCitation(message: ThreadMessage): Citation {
 }
 
 function firstSentence(text: string): string {
-  const trimmed = text.trim();
-  const end = trimmed.search(/[.!?](\s|$)/);
-  return (end === -1 ? trimmed : trimmed.slice(0, end)).trim();
+  const line = text.trim().split('\n')[0] ?? '';
+  const end = line.search(/[.!?](\s|$)/);
+  const sentence = (end === -1 ? line : line.slice(0, end)).trim();
+  return sentence.length > 240 ? `${sentence.slice(0, 239)}…` : sentence;
 }
 
 function extractRationale(text: string): string {
-  const match = text.match(/\b(?:because|since|due to)\b\s+(.+)$/i);
-  return match?.[1]?.trim().replace(/[.!?]+$/, '') ?? '';
+  // Capture only up to the first sentence terminator so unrelated trailing
+  // chatter after "because …" is not recorded as the decision's rationale.
+  const match = text.match(/\b(?:because|since|due to)\b\s+([^.!?]+)/i);
+  return match?.[1]?.trim() ?? '';
 }
 
 function extractAlternatives(text: string): Alternative[] {

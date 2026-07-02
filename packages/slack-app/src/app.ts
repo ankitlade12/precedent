@@ -47,7 +47,7 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
 
   const pending = new Map<string, DecisionProposal>();
 
-  // `/precedent why <topic>` — structured recall; RTS backfill on a miss.
+  // `/precedent why <topic>` — recall (RTS backfill on a miss); `/precedent log` — capture.
   app.command('/precedent', async ({ command, ack, respond, client }) => {
     await ack();
     const [subcommand, ...rest] = command.text.trim().split(/\s+/);
@@ -67,7 +67,43 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
       }
       return;
     }
-    await respond('Usage: `/precedent why <topic>` — ask what the team decided, with the receipts.');
+
+    // `/precedent log` — scan recent channel history and propose the latest decision.
+    if (subcommand === 'log') {
+      try {
+        await client.conversations.join({ channel: command.channel_id }).catch(() => undefined);
+        const history = await client.conversations.history({ channel: command.channel_id, limit: 15 });
+        const messages: ThreadMessage[] = await Promise.all(
+          (history.messages ?? [])
+            .filter((message) => message.subtype === undefined && (message.text ?? '').trim().length > 0)
+            .map(async (message): Promise<ThreadMessage> => {
+              const ts = message.ts ?? '';
+              const permalink = await client.chat
+                .getPermalink({ channel: command.channel_id, message_ts: ts })
+                .then((result) => result.permalink ?? '')
+                .catch(() => '');
+              return { userId: message.user ?? 'unknown', text: message.text ?? '', ts, channelId: command.channel_id, permalink };
+            }),
+        );
+        console.log(`[capture] /precedent log scanned ${messages.length} message(s)`);
+        const proposal = await deps.detector.detect({ channelId: command.channel_id, messages });
+        if (proposal === null) {
+          await respond("I couldn't spot a recent decision here — post something like “we're going with X over Y because Z”, then run `/precedent log`.");
+          return;
+        }
+        const token = randomUUID();
+        pending.set(token, proposal);
+        console.log(`[capture] proposal "${proposal.statement}" (token ${token})`);
+        await client.chat.postMessage({ channel: command.channel_id, blocks: buildDecisionProposalCard(proposal, token), text: 'Log this decision?' });
+        await respond('Found a likely decision — confirm the card I posted just above to log it. :point_up:');
+      } catch (error) {
+        console.error('[capture] /precedent log failed:', error);
+        await respond(`Capture failed: ${String(error)}`);
+      }
+      return;
+    }
+
+    await respond('Usage:\n• `/precedent why <topic>` — what did we decide, with receipts\n• `/precedent log` — capture the most recent decision in this channel');
   });
 
   // Message shortcut: capture a decision from a thread.
@@ -79,33 +115,49 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
     const channelId = shortcut.channel.id;
     const rootTs = (shortcut.message as { thread_ts?: string }).thread_ts ?? shortcut.message_ts;
 
-    const replies = await client.conversations.replies({ channel: channelId, ts: rootTs, limit: 100 });
-    const messages: ThreadMessage[] = await Promise.all(
-      (replies.messages ?? []).map(async (message): Promise<ThreadMessage> => {
-        const ts = message.ts ?? '';
-        const link = await client.chat.getPermalink({ channel: channelId, message_ts: ts });
-        return { userId: message.user ?? 'unknown', text: message.text ?? '', ts, channelId, permalink: link.permalink ?? '' };
-      }),
-    );
+    try {
+      // Join the channel so we can read its history (public channels only).
+      await client.conversations.join({ channel: channelId }).catch(() => undefined);
 
-    const proposal = await deps.detector.detect({ channelId, threadTs: rootTs, messages });
-    if (proposal === null) {
-      await client.chat.postEphemeral({
+      const replies = await client.conversations.replies({ channel: channelId, ts: rootTs, limit: 100 });
+      const messages: ThreadMessage[] = await Promise.all(
+        (replies.messages ?? []).map(async (message): Promise<ThreadMessage> => {
+          const ts = message.ts ?? '';
+          const permalink = await client.chat
+            .getPermalink({ channel: channelId, message_ts: ts })
+            .then((result) => result.permalink ?? '')
+            .catch(() => '');
+          return { userId: message.user ?? 'unknown', text: message.text ?? '', ts, channelId, permalink };
+        }),
+      );
+      console.log(`[capture] shortcut on ${channelId}: ${messages.length} message(s)`);
+
+      const proposal = await deps.detector.detect({ channelId, threadTs: rootTs, messages });
+      if (proposal === null) {
+        console.log('[capture] no decision detected');
+        await client.chat.postEphemeral({
+          channel: channelId,
+          user: shortcut.user.id,
+          text: "I couldn't spot a clear decision there — try a message with a commitment cue like “we're going with X”.",
+        });
+        return;
+      }
+
+      const token = randomUUID();
+      pending.set(token, proposal);
+      console.log(`[capture] proposal "${proposal.statement}" (token ${token})`);
+      await client.chat.postMessage({
         channel: channelId,
-        user: shortcut.user.id,
-        text: "I couldn't spot a clear decision in that thread. Use `/precedent why …` to search, or capture one by hand.",
+        thread_ts: rootTs,
+        blocks: buildDecisionProposalCard(proposal, token),
+        text: 'Log this decision?',
       });
-      return;
+    } catch (error) {
+      console.error('[capture] shortcut failed:', error);
+      await client.chat
+        .postEphemeral({ channel: channelId, user: shortcut.user.id, text: `Capture failed: ${String(error)}` })
+        .catch(() => undefined);
     }
-
-    const token = randomUUID();
-    pending.set(token, proposal);
-    await client.chat.postMessage({
-      channel: channelId,
-      thread_ts: rootTs,
-      blocks: buildDecisionProposalCard(proposal, token),
-      text: 'Log this decision?',
-    });
   });
 
   // Confirm → append an immutable, cited record to the ledger.
@@ -125,12 +177,16 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
       confidence: proposal.confidence,
     });
     pending.delete(token);
+    console.log(`[capture] confirmed ${record.id}: "${record.content.statement}"`);
     await respond({ replace_original: true, text: `:white_check_mark: Logged to the decision ledger as \`${record.id}\`.` });
   });
 
-  app.action(EDIT_ACTION, async ({ ack }) => {
+  app.action(EDIT_ACTION, async ({ ack, respond }) => {
     await ack();
     // TODO: open a modal pre-filled with the proposal for inline editing.
+    await respond({
+      text: "Inline editing isn't wired up yet — Confirm to log it as-is, or Dismiss and capture a cleaner message.",
+    });
   });
 
   app.action(DISMISS_ACTION, async ({ ack, action, respond }) => {

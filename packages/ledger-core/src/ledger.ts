@@ -179,7 +179,14 @@ export class Ledger {
     if (successor === undefined) {
       return record.status;
     }
-    return successor.content.supersessionType === 'reverse' ? 'reversed' : 'superseded';
+    switch (successor.content.supersessionType) {
+      case 'reverse':
+        return 'reversed';
+      case 'amend':
+        return 'amended';
+      default:
+        return 'superseded';
+    }
   }
 
   /**

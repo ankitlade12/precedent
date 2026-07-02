@@ -27,7 +27,7 @@ export type DecisionType =
  * effective status of a superseded/reversed decision is derived at read time by
  * {@link "./ledger".Ledger.effectiveStatus}, not stored.
  */
-export type DecisionStatus = 'confirmed' | 'superseded' | 'reversed';
+export type DecisionStatus = 'confirmed' | 'superseded' | 'reversed' | 'amended';
 
 /** How a later decision relates to the one it replaces. */
 export type SupersessionType = 'supersede' | 'reverse' | 'amend';

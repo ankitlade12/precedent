@@ -41,12 +41,13 @@ describe('buildDecisionProposalCard', () => {
 describe('buildRecallAnswer', () => {
   it('shows the current decision with a supersession warning and the source permalink', () => {
     const ledger = new Ledger({ clock: fixedClock('2026-06-01T00:00:00.000Z') });
-    const first = ledger.append(content({ statement: 'Use Postgres' }), { confirmedBy: 'U1' });
-    ledger.append(content({ statement: 'Use DynamoDB', supersedesId: first.id, supersessionType: 'reverse' }), {
-      confirmedBy: 'U1',
-    });
+    const first = ledger.append(content({ statement: 'Use Postgres for the primary datastore' }), { confirmedBy: 'U1' });
+    ledger.append(
+      content({ statement: 'Use DynamoDB for the primary datastore', supersedesId: first.id, supersessionType: 'reverse' }),
+      { confirmedBy: 'U1' },
+    );
 
-    const rendered = JSON.stringify(buildRecallAnswer('datastore', recall(ledger, 'postgres dynamodb datastore')));
+    const rendered = JSON.stringify(buildRecallAnswer('primary datastore', recall(ledger, 'primary datastore')));
     expect(rendered).toContain('Use DynamoDB');
     expect(rendered).toContain('overturned an earlier call');
     expect(rendered).toContain('acme.slack.com');

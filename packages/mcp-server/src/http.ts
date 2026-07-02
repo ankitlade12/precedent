@@ -34,7 +34,13 @@ export async function startMcpHttp(
   const transports = new Map<string, StreamableHTTPServerTransport>();
 
   const httpServer = createServer((req: IncomingMessage, res: ServerResponse): void => {
-    void route(req, res);
+    route(req, res).catch((error: unknown) => {
+      if (res.headersSent) {
+        res.end();
+      } else {
+        respondError(res, error instanceof Error ? error.message : 'Bad request');
+      }
+    });
   });
 
   async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {

@@ -37,4 +37,12 @@ describe('recall', () => {
     const ledger = new Ledger({ clock: fixedClock('2026-06-01T00:00:00.000Z') });
     expect(recall(ledger, 'which kubernetes ingress').decided).toBe(false);
   });
+
+  it('does not fabricate a confident match from a single incidental shared word', () => {
+    const ledger = new Ledger({ clock: fixedClock('2026-06-01T00:00:00.000Z') });
+    ledger.append(content({ statement: 'Use Postgres', rationale: 'the core team already knows it well' }), {
+      confirmedBy: 'U1',
+    });
+    expect(recall(ledger, 'what is our vacation policy for the whole team').decided).toBe(false);
+  });
 });
