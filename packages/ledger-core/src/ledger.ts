@@ -53,22 +53,31 @@ export class Ledger {
       return existing;
     }
 
-    if (content.supersedesId !== undefined && this.#store.getById(content.supersedesId) === undefined) {
-      throw new Error(`Cannot supersede unknown decision ${content.supersedesId}`);
+    if (content.supersedesId !== undefined) {
+      if (this.#store.getById(content.supersedesId) === undefined) {
+        throw new Error(`Cannot supersede unknown decision ${content.supersedesId}`);
+      }
+      const successor = this.supersessorOf(content.supersedesId);
+      if (successor !== undefined) {
+        throw new Error(
+          `Decision ${content.supersedesId} is already superseded by ${successor.id}; supersede the current head instead`,
+        );
+      }
     }
 
     const records = this.#store.all();
     const prev = records.at(-1);
     const prevHash = prev ? prev.recordHash : GENESIS_HASH;
+    const confirmedAt = this.#clock().toISOString();
 
     const record: DecisionRecord = {
       id,
       sequence: records.length,
       status: 'confirmed',
       prevHash,
-      recordHash: recordHash(prevHash, id),
+      recordHash: recordHash(prevHash, id, options.confirmedBy, confirmedAt, options.confidence),
       confirmedBy: options.confirmedBy,
-      confirmedAt: this.#clock().toISOString(),
+      confirmedAt,
       ...(options.confidence !== undefined ? { confidence: options.confidence } : {}),
       content,
     };
@@ -183,7 +192,7 @@ export class Ledger {
     for (let index = 0; index < records.length; index += 1) {
       const record = records[index]!;
       const expectedId = decisionId(record.content);
-      const expectedHash = recordHash(prevHash, expectedId);
+      const expectedHash = recordHash(prevHash, expectedId, record.confirmedBy, record.confirmedAt, record.confidence);
       if (
         record.id !== expectedId ||
         record.prevHash !== prevHash ||

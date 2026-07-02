@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { canonicalize } from '../src/canonical';
+import { decisionId } from '../src/hash';
 import { fixedClock } from '../src/clock';
 import { Ledger } from '../src/ledger';
 import type { DecisionContent, DecisionRecord } from '../src/types';
@@ -59,5 +60,19 @@ describe('hash chain', () => {
     expect(first?.prevHash).toBe('');
     expect(second?.prevHash).toBe(first?.recordHash);
     expect(third?.prevHash).toBe(second?.recordHash);
+  });
+
+  it('detects tampering with provenance metadata (who confirmed)', () => {
+    const ledger = seededLedger();
+    const tampered = ledger.all()[2] as DecisionRecord;
+    tampered.confirmedBy = 'U_ATTACKER';
+    expect(ledger.verifyChain()).toEqual({ ok: false, brokenAt: 2 });
+  });
+});
+
+describe('decisionId identity', () => {
+  it('is independent of decidedBy order (deciders are an unordered set)', () => {
+    const shared = (deciders: string[]): DecisionContent => ({ ...content('Shared call'), decidedBy: deciders });
+    expect(decisionId(shared(['U_A', 'U_B']))).toBe(decisionId(shared(['U_B', 'U_A'])));
   });
 });

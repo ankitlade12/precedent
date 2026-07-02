@@ -93,6 +93,15 @@ describe('supersession resolution', () => {
     expect(ledger.effectiveStatus(a.id)).toBe('superseded');
   });
 
+  it('rejects a second decision superseding an already-superseded parent (no forks)', () => {
+    const ledger = newLedger();
+    const original = ledger.append(content({ statement: 'v1: monolith' }), { confirmedBy: 'U1' });
+    ledger.append(content({ statement: 'v2: services', supersedesId: original.id }), { confirmedBy: 'U1' });
+    expect(() =>
+      ledger.append(content({ statement: 'v2: modular monolith', supersedesId: original.id }), { confirmedBy: 'U1' }),
+    ).toThrow(/already superseded/);
+  });
+
   it('returns undefined effective status and head for unknown ids', () => {
     const ledger = newLedger();
     expect(ledger.effectiveStatus('DR-nope')).toBeUndefined();
