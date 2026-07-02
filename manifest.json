@@ -9,6 +9,10 @@
       "display_name": "precedent",
       "always_online": true
     },
+    "app_home": {
+      "home_tab_enabled": true,
+      "messages_tab_enabled": false
+    },
     "slash_commands": [
       {
         "command": "/precedent",
@@ -42,7 +46,8 @@
   "settings": {
     "event_subscriptions": {
       "bot_events": [
-        "message.channels"
+        "message.channels",
+        "app_home_opened"
       ]
     },
     "interactivity": {

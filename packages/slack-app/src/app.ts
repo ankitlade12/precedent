@@ -268,6 +268,17 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
     }
   });
 
+  // Home tab: a browsable ledger surface for all current decisions.
+  app.event('app_home_opened', async ({ event, client }) => {
+    if (event.tab !== 'home') {
+      return;
+    }
+    await client.views.publish({
+      user_id: event.user,
+      view: { type: 'home', blocks: buildOnboardingBrief([...deps.ledger.currentDecisions()]) },
+    });
+  });
+
   return app;
 }
 
