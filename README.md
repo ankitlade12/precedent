@@ -9,7 +9,7 @@ Precedent records what your team decided, *why*, and what it *rejected* — grou
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-339933.svg?logo=node.js&logoColor=white)](.nvmrc)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg?logo=typescript&logoColor=white)](tsconfig.base.json)
-[![Tests](https://img.shields.io/badge/tests-26%20passing-brightgreen.svg)](#tests)
+[![Tests](https://img.shields.io/badge/tests-40%20passing-brightgreen.svg)](#tests)
 [![Slack platform](https://img.shields.io/badge/Slack-RTS%20API%20%2B%20MCP-4A154B.svg?logo=slack&logoColor=white)](https://docs.slack.dev/ai/slack-mcp-server/)
 
 </div>
@@ -118,7 +118,7 @@ The built-in `HeuristicDetector` needs **no** API key — it detects decisions f
 
 Test Files  9 passed (9)   Tests  40 passed (40)
 
-Detection eval (`npm run eval`): heuristic → precision 100% · recall 71% · F1 83% on the labeled set.
+Detection eval (`npm run eval`) on the labeled set: the no‑key **heuristic** scores precision 100% · recall 71% · F1 83%; with `ANTHROPIC_API_KEY` set, the **Claude detector** (`claude-opus-4-8`) scores **100% / 100% / 100%** — it catches the commitments the heuristic's precision‑first cues miss, with no new false positives.
 ```
 
 The MCP path is additionally verified **at runtime**: a live MCP client connects to the server, lists the tools, and calls `has_this_been_decided`, which returns the current decision with the reversal correctly resolved.
