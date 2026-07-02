@@ -6,6 +6,7 @@
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
+    "@precedent/llm-anthropic": "^0.1.0",
     "@precedent/ledger-core": "^0.1.0",
     "@precedent/mcp-server": "^0.1.0",
     "@precedent/proposer": "^0.1.0",

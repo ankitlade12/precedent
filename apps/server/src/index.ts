@@ -1,13 +1,26 @@
 import 'dotenv/config';
 
+import { AnthropicLlmClient } from '@precedent/llm-anthropic';
 import { Ledger } from '@precedent/ledger-core';
 import { createMcpServer, startMcpHttp } from '@precedent/mcp-server';
-import { HeuristicDetector } from '@precedent/proposer';
+import { type Detector, HeuristicDetector, LlmDetector } from '@precedent/proposer';
 import { createSlackApp } from '@precedent/slack-app';
 import { SqliteLedgerStore } from '@precedent/store-sqlite';
 
 import { loadConfig } from './config';
 import { seedInto } from './seed';
+
+/** Use Claude for decision extraction when configured; otherwise the precision-first heuristic. */
+function buildDetector(): Detector {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (apiKey !== undefined && apiKey !== '') {
+    const model = process.env.ANTHROPIC_MODEL;
+    console.log(`Detector: Claude (${model ?? 'claude-opus-4-8'})`);
+    return new LlmDetector(new AnthropicLlmClient(model !== undefined ? { model } : {}));
+  }
+  console.log('Detector: heuristic (set ANTHROPIC_API_KEY in .env for Claude extraction)');
+  return new HeuristicDetector();
+}
 
 /**
  * The composition root: the only place the pieces are wired together. The
@@ -24,7 +37,7 @@ async function main(): Promise<void> {
     console.log(`Seeded ${ledger.all().length} demo decisions into ${config.databasePath}`);
   }
 
-  const detector = new HeuristicDetector();
+  const detector = buildDetector();
   const slack = createSlackApp(config.slack, { ledger, detector });
 
   await slack.start();
