@@ -1,4 +1,4 @@
-import type { DecisionAnswer, DecisionProposal } from '@precedent/proposer';
+import type { DecisionAnswer, DecisionProposal, SourceMessage } from '@precedent/proposer';
 import type { KnownBlock } from '@slack/types';
 
 /** Block action ids for the proposal card buttons. */
@@ -9,13 +9,16 @@ export const DISMISS_ACTION = 'precedent_dismiss';
 /**
  * The capture card: a single, unobtrusive Block Kit message posted at the moment a
  * decision is detected — "here's the decision I think was made; log it?" Dismissing
- * is one tap, which is what lets detection favor precision.
+ * is one tap, which is what lets detection favor precision. `token` correlates the
+ * buttons back to the pending proposal held by the app.
  */
-export function buildDecisionProposalCard(proposal: DecisionProposal): KnownBlock[] {
+export function buildDecisionProposalCard(proposal: DecisionProposal, token?: string): KnownBlock[] {
   const alternatives =
     proposal.alternatives.length > 0
       ? proposal.alternatives.map((alt) => `• *${alt.option}* — ${alt.reason}`).join('\n')
       : '_None captured._';
+
+  const value = token ?? '';
 
   return [
     {
@@ -42,9 +45,9 @@ export function buildDecisionProposalCard(proposal: DecisionProposal): KnownBloc
     {
       type: 'actions',
       elements: [
-        { type: 'button', style: 'primary', text: { type: 'plain_text', text: 'Confirm' }, action_id: CONFIRM_ACTION },
-        { type: 'button', text: { type: 'plain_text', text: 'Edit' }, action_id: EDIT_ACTION },
-        { type: 'button', style: 'danger', text: { type: 'plain_text', text: 'Dismiss' }, action_id: DISMISS_ACTION },
+        { type: 'button', style: 'primary', text: { type: 'plain_text', text: 'Confirm' }, action_id: CONFIRM_ACTION, value },
+        { type: 'button', text: { type: 'plain_text', text: 'Edit' }, action_id: EDIT_ACTION, value },
+        { type: 'button', style: 'danger', text: { type: 'plain_text', text: 'Dismiss' }, action_id: DISMISS_ACTION, value },
       ],
     },
   ];
@@ -98,6 +101,44 @@ export function buildRecallAnswer(topic: string, answer: DecisionAnswer): KnownB
   return blocks;
 }
 
+/**
+ * On a recall miss, offer the likely source threads found via the Real-Time Search
+ * API so the user can capture a decision that predates the ledger.
+ */
+export function buildBackfillPrompt(topic: string, candidates: SourceMessage[]): KnownBlock[] {
+  if (candidates.length === 0) {
+    return [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `I don't have a recorded decision about *${topic}* yet, and I couldn't find a likely source thread.`,
+        },
+      },
+    ];
+  }
+
+  const list = candidates
+    .slice(0, 5)
+    .map((candidate, index) => `${index + 1}. <${candidate.permalink}|source> — ${truncate(candidate.text, 140)}`)
+    .join('\n');
+
+  return [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `I don't have a *logged* decision about *${topic}* yet — but these threads look relevant. Open one and use the *Log this decision* shortcut to capture it:`,
+      },
+    },
+    { type: 'section', text: { type: 'mrkdwn', text: list } },
+  ];
+}
+
 function formatUsers(userIds: string[]): string {
   return userIds.length > 0 ? userIds.map((id) => `<@${id}>`).join(', ') : '_unknown_';
+}
+
+function truncate(text: string, max: number): string {
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }

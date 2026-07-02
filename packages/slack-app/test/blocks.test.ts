@@ -28,12 +28,13 @@ describe('buildDecisionProposalCard', () => {
       citations: [{ permalink: 'https://acme.slack.com/archives/C1/p1', channelId: 'C1', ts: '1.1' }],
       channelId: 'C1',
       confidence: 0.55,
-    });
+    }, 'tok-123');
 
     const actions = blocks.find((block) => block.type === 'actions');
     expect(actions).toBeDefined();
     expect(JSON.stringify(blocks)).toContain(CONFIRM_ACTION);
     expect(JSON.stringify(blocks)).toContain('Drop the Redis cache');
+    expect(JSON.stringify(blocks)).toContain('tok-123');
   });
 });
 
