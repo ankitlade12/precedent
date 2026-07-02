@@ -75,24 +75,27 @@ A strict dependency direction enforces the architecture: **`ledger-core` has zer
 | Package | Responsibility | Depends on |
 |---|---|---|
 | [`packages/ledger-core`](packages/ledger-core) | Append-only ledger, content-addressed IDs, hash-chain integrity, supersession resolution. **Zero runtime deps.** | — |
-| [`packages/proposer`](packages/proposer) | The model layer: heuristic decision detector, provider-agnostic LLM port, deterministic recall, RTS backfill port. | ledger-core |
+| [`packages/store-sqlite`](packages/store-sqlite) | Durable, append-only SQLite store (`node:sqlite`) with DB-enforced immutability triggers. | ledger-core |
+| [`packages/proposer`](packages/proposer) | The model layer: precision-first heuristic detector, provider-agnostic LLM port, deterministic recall, RTS backfill port, and a detection eval harness. | ledger-core |
+| [`packages/llm-anthropic`](packages/llm-anthropic) | Claude-backed detector (structured outputs) behind the LLM port — richer extraction when `ANTHROPIC_API_KEY` is set. | proposer |
 | [`packages/mcp-server`](packages/mcp-server) | Precedent's own MCP server: `has_this_been_decided`, `get_decision`, `list_decisions`. | ledger-core, proposer |
-| [`packages/slack-app`](packages/slack-app) | Bolt surface: the Block Kit proposal card and `/precedent` recall. | ledger-core, proposer |
-| [`apps/server`](apps/server) | Composition root — one process serving Slack (Socket Mode) + MCP (`/mcp`). | all of the above |
+| [`packages/slack-app`](packages/slack-app) | Bolt surface: ambient capture + the relitigation guard, the Block Kit proposal card, `/precedent why · log · onboard`, and a Home-tab ledger. | ledger-core, proposer |
+| [`apps/server`](apps/server) | Composition root — one process serving Slack (Socket Mode) + MCP (`/mcp`), on durable SQLite. | all of the above |
 
 ## Quickstart
 
 ```bash
 nvm use                 # Node >= 20 (see .nvmrc)
 npm install
-npm test                # 26 tests across all packages
+npm test                # 40 tests across all packages
 npm run typecheck       # strict TypeScript, whole workspace
+npm run eval            # detection precision/recall on a labeled set
 
 cp .env.example .env    # then fill in your Slack sandbox tokens
 npm start               # Slack app (Socket Mode) + MCP server on :3010/mcp
 ```
 
-The built-in `HeuristicDetector` needs **no** API key — it detects decisions from explicit commitment cues and favors precision, since a human confirms every proposal. Plug in the `LlmDetector` for richer extraction.
+The built-in `HeuristicDetector` needs **no** API key — it detects decisions from explicit commitment cues and favors precision, since a human confirms every proposal. Set **`ANTHROPIC_API_KEY`** in `.env` to switch to the Claude-backed `LlmDetector` for richer extraction (the composition root logs which detector is active).
 
 ### Connecting to Slack
 
@@ -105,13 +108,17 @@ The built-in `HeuristicDetector` needs **no** API key — it detects decisions f
 ## <a id="tests"></a>Tests & verification
 
 ```
-✓ packages/ledger-core   — append/dedup, supersession chains, reversal, hash-chain tamper detection (13)
-✓ packages/proposer      — precision-first detection, deterministic recall (4)
-✓ packages/mcp-server    — has_this_been_decided / get_decision / list_decisions (4)
-✓ packages/slack-app     — Block Kit proposal card + recall answer (3)
-✓ apps/server            — seeded demo history is verifiable and correctly resolves supersession (2)
+✓ packages/ledger-core   — dedup, forked-supersession rejection, reversal, hash-chain + provenance tamper detection
+✓ packages/proposer      — precision-first detection, false-positive-guarded recall, eval harness
+✓ packages/store-sqlite  — persist-across-restart, append-only dedup
+✓ packages/llm-anthropic — Claude extraction → grounded proposal mapping
+✓ packages/mcp-server    — has_this_been_decided / get_decision / list_decisions
+✓ packages/slack-app     — proposal card, recall answer, relitigation nudge, onboarding brief
+✓ apps/server            — seeded demo history verifiable and supersession-correct
 
-Test Files  7 passed (7)   Tests  26 passed (26)
+Test Files  9 passed (9)   Tests  40 passed (40)
+
+Detection eval (`npm run eval`): heuristic → precision 100% · recall 71% · F1 83% on the labeled set.
 ```
 
 The MCP path is additionally verified **at runtime**: a live MCP client connects to the server, lists the tools, and calls `has_this_been_decided`, which returns the current decision with the reversal correctly resolved.
@@ -138,7 +145,7 @@ Precedent is aimed first at the teams that feel this pain most sharply and can l
 
 ## Roadmap
 
-**MVP (this build):** capture with confirm, recall with supersession, permalink provenance, one Block Kit surface, an MCP server, and a seeded demo workspace. → **v1:** persistent store, RTS backfill wizard, weekly digest, GitHub links, export. → **Beyond:** cross-agent precedent gate, enterprise governance (approvals, retention, audit export), analytics (reversal rate, most-relitigated topics). Full detail in **[docs/roadmap.md](docs/roadmap.md)**.
+**Built:** capture with confirm, recall with supersession, permalink provenance, **ambient detection + the relitigation guard**, the **Claude-backed detector**, an **MCP server**, a **Home-tab ledger**, `/precedent onboard`, **durable SQLite**, a **detection eval**, and a seeded demo workspace. → **v1:** RTS backfill wizard, weekly digest, GitHub links, ADR export, multi-workspace. → **Beyond:** cross-agent precedent gate, enterprise governance (approvals, retention, audit), analytics (reversal rate, most-relitigated topics). Full detail in **[docs/roadmap.md](docs/roadmap.md)**.
 
 ## Status
 
