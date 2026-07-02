@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import { createMcpServer, startMcpHttp } from '@precedent/mcp-server';
 import { HeuristicDetector } from '@precedent/proposer';
 import { createSlackApp } from '@precedent/slack-app';
