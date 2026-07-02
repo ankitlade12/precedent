@@ -3,7 +3,9 @@ export { createSlackApp, type SlackAppConfig, type SlackAppDeps } from './app';
 export {
   buildBackfillPrompt,
   buildDecisionProposalCard,
+  buildOnboardingBrief,
   buildRecallAnswer,
+  buildRelitigationNudge,
   CONFIRM_ACTION,
   DISMISS_ACTION,
   EDIT_ACTION,

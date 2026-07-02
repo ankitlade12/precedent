@@ -3,11 +3,14 @@ import { randomUUID } from 'node:crypto';
 import type { Ledger } from '@precedent/ledger-core';
 import { type DecisionProposal, type Detector, recall, type ThreadMessage, toDecisionContent } from '@precedent/proposer';
 import { App } from '@slack/bolt';
+import type { WebClient } from '@slack/web-api';
 
 import {
   buildBackfillPrompt,
   buildDecisionProposalCard,
+  buildOnboardingBrief,
   buildRecallAnswer,
+  buildRelitigationNudge,
   CONFIRM_ACTION,
   DISMISS_ACTION,
   EDIT_ACTION,
@@ -103,7 +106,14 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
       return;
     }
 
-    await respond('Usage:\n• `/precedent why <topic>` — what did we decide, with receipts\n• `/precedent log` — capture the most recent decision in this channel');
+    if (subcommand === 'onboard') {
+      await respond({ blocks: buildOnboardingBrief([...deps.ledger.currentDecisions()]) });
+      return;
+    }
+
+    await respond(
+      'Usage:\n• `/precedent why <topic>` — what did we decide, with receipts\n• `/precedent log` — capture the most recent decision here\n• `/precedent onboard` — the decisions a new contributor should know',
+    );
   });
 
   // Message shortcut: capture a decision from a thread.
@@ -198,7 +208,83 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
     await respond({ replace_original: true, text: 'Dismissed — no record kept.' });
   });
 
+  // Ambient: watch channel messages for decisions to capture, and for settled
+  // questions being relitigated. Precision-first — the detector only fires on an
+  // explicit commitment, and the guard only on a clear question with a strong match.
+  app.message(async ({ message, client }) => {
+    const event = message as {
+      subtype?: string;
+      bot_id?: string;
+      user?: string;
+      text?: string;
+      channel?: string;
+      ts?: string;
+      channel_type?: string;
+    };
+    if (event.subtype !== undefined || event.bot_id !== undefined || event.channel_type !== 'channel') {
+      return;
+    }
+    const text = (event.text ?? '').trim();
+    const channelId = event.channel ?? '';
+    const ts = event.ts ?? '';
+    if (text.length < 12 || channelId === '' || ts === '') {
+      return;
+    }
+
+    // 1) Relitigation guard: a settled question is being re-raised.
+    if (isQuestionOrReopen(text)) {
+      const answer = recall(deps.ledger, text);
+      if (
+        answer.decided &&
+        answer.current !== undefined &&
+        answer.current.content.citations.every((citation) => citation.ts !== ts)
+      ) {
+        await client.chat.postMessage({
+          channel: channelId,
+          thread_ts: ts,
+          blocks: buildRelitigationNudge(answer),
+          text: 'This looks already decided.',
+        });
+        return;
+      }
+    }
+
+    // 2) Ambient capture: this message just made a decision.
+    const proposal = await deps.detector.detect({
+      channelId,
+      messages: [
+        { userId: event.user ?? 'unknown', text, ts, channelId, permalink: await permalinkFor(client, channelId, ts) },
+      ],
+    });
+    if (proposal !== null) {
+      const token = randomUUID();
+      pending.set(token, proposal);
+      await client.chat.postMessage({
+        channel: channelId,
+        thread_ts: ts,
+        blocks: buildDecisionProposalCard(proposal, token),
+        text: 'Log this decision?',
+      });
+    }
+  });
+
   return app;
+}
+
+function isQuestionOrReopen(text: string): boolean {
+  return (
+    /\?\s*$/.test(text) ||
+    /\b(should we|shouldn'?t we|why (?:don'?t|not)|can we|what about|reconsider|reopen|revisit|are we still|do we still)\b/i.test(
+      text,
+    )
+  );
+}
+
+async function permalinkFor(client: WebClient, channel: string, messageTs: string): Promise<string> {
+  return client.chat
+    .getPermalink({ channel, message_ts: messageTs })
+    .then((result) => result.permalink ?? '')
+    .catch(() => '');
 }
 
 function isoFromSlackTs(ts: string | undefined): string | undefined {

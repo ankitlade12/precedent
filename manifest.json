@@ -40,6 +40,11 @@
     }
   },
   "settings": {
+    "event_subscriptions": {
+      "bot_events": [
+        "message.channels"
+      ]
+    },
     "interactivity": {
       "is_enabled": true
     },

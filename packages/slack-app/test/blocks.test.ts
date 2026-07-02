@@ -2,7 +2,13 @@ import { type DecisionContent, fixedClock, Ledger } from '@precedent/ledger-core
 import { recall } from '@precedent/proposer';
 import { describe, expect, it } from 'vitest';
 
-import { buildDecisionProposalCard, buildRecallAnswer, CONFIRM_ACTION } from '../src/blocks';
+import {
+  buildDecisionProposalCard,
+  buildOnboardingBrief,
+  buildRecallAnswer,
+  buildRelitigationNudge,
+  CONFIRM_ACTION,
+} from '../src/blocks';
 
 function content(overrides: Partial<DecisionContent>): DecisionContent {
   return {
@@ -57,5 +63,30 @@ describe('buildRecallAnswer', () => {
     const ledger = new Ledger({ clock: fixedClock('2026-06-01T00:00:00.000Z') });
     const rendered = JSON.stringify(buildRecallAnswer('anything', recall(ledger, 'anything')));
     expect(rendered).toContain("don't have a recorded decision");
+  });
+});
+
+describe('buildRelitigationNudge', () => {
+  it('surfaces the current decision when a settled question resurfaces', () => {
+    const ledger = new Ledger({ clock: fixedClock('2026-06-01T00:00:00.000Z') });
+    ledger.append(content({ statement: 'Drop the Redis cache' }), { confirmedBy: 'U1' });
+    const rendered = JSON.stringify(buildRelitigationNudge(recall(ledger, 'redis cache')));
+    expect(rendered).toContain('looks settled');
+    expect(rendered).toContain('Drop the Redis cache');
+  });
+
+  it('renders nothing when the topic is undecided', () => {
+    const ledger = new Ledger({ clock: fixedClock('2026-06-01T00:00:00.000Z') });
+    expect(buildRelitigationNudge(recall(ledger, 'anything'))).toHaveLength(0);
+  });
+});
+
+describe('buildOnboardingBrief', () => {
+  it('lists the current decisions for a newcomer', () => {
+    const ledger = new Ledger({ clock: fixedClock('2026-06-01T00:00:00.000Z') });
+    ledger.append(content({ statement: 'Drop the Redis cache' }), { confirmedBy: 'U1' });
+    const rendered = JSON.stringify(buildOnboardingBrief([...ledger.currentDecisions()]));
+    expect(rendered).toContain('new contributor');
+    expect(rendered).toContain('Drop the Redis cache');
   });
 });

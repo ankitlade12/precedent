@@ -1,3 +1,4 @@
+import type { DecisionRecord } from '@precedent/ledger-core';
 import type { DecisionAnswer, DecisionProposal, SourceMessage } from '@precedent/proposer';
 import type { KnownBlock } from '@slack/types';
 
@@ -132,6 +133,64 @@ export function buildBackfillPrompt(topic: string, candidates: SourceMessage[]):
       },
     },
     { type: 'section', text: { type: 'mrkdwn', text: list } },
+  ];
+}
+
+/**
+ * The relitigation guard: when a settled question resurfaces, surface the current
+ * decision in-thread so the team doesn't re-debate it. This is the feature that
+ * stops the waste at the source.
+ */
+export function buildRelitigationNudge(answer: DecisionAnswer): KnownBlock[] {
+  if (!answer.decided || answer.current === undefined) {
+    return [];
+  }
+  const current = answer.current;
+  const receipt = current.content.citations[0]?.permalink;
+  const blocks: KnownBlock[] = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `:memo: Heads up — this looks settled. The team decided: *${current.content.statement}*${receipt ? ` (<${receipt}|source>)` : ''}`,
+      },
+    },
+  ];
+  if (answer.wasSuperseded) {
+    blocks.push({
+      type: 'context',
+      elements: [{ type: 'mrkdwn', text: `This is the current call — ${answer.history.length} versions on record.` }],
+    });
+  }
+  blocks.push({
+    type: 'context',
+    elements: [{ type: 'mrkdwn', text: 'Ask `/precedent why …` for the full rationale and alternatives.' }],
+  });
+  return blocks;
+}
+
+/** A newcomer's onboarding brief: the current decisions a new contributor should know. */
+export function buildOnboardingBrief(decisions: DecisionRecord[]): KnownBlock[] {
+  if (decisions.length === 0) {
+    return [{ type: 'section', text: { type: 'mrkdwn', text: 'No decisions on record yet.' } }];
+  }
+  const lines = decisions
+    .slice(0, 20)
+    .map((decision) => {
+      const receipt = decision.content.citations[0]?.permalink;
+      const link = receipt ? ` <${receipt}|↗>` : '';
+      return `• *${decision.content.statement}* — _${decision.content.type}_${link}`;
+    })
+    .join('\n');
+  return [
+    { type: 'header', text: { type: 'plain_text', text: 'Decisions a new contributor should know' } },
+    { type: 'section', text: { type: 'mrkdwn', text: lines } },
+    {
+      type: 'context',
+      elements: [
+        { type: 'mrkdwn', text: `${decisions.length} current decision(s) · ask \`/precedent why <topic>\` for the rationale` },
+      ],
+    },
   ];
 }
 
