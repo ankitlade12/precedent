@@ -9,6 +9,7 @@ export interface AppConfig {
     path: string;
     bearerToken?: string;
   };
+  databasePath: string;
 }
 
 /** Load and validate configuration from the environment. Fails loudly on a missing secret. */
@@ -24,6 +25,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       path: env.MCP_PATH ?? '/mcp',
       ...(env.MCP_BEARER_TOKEN !== undefined ? { bearerToken: env.MCP_BEARER_TOKEN } : {}),
     },
+    databasePath: env.DATABASE_PATH ?? 'data/precedent.db',
   };
 }
 

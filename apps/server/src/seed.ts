@@ -41,9 +41,7 @@ function content(input: SeedInput): DecisionContent {
  * decision that gets reversed six weeks later — so the supersession moment (the
  * thing search can never do) has something true to stand on.
  */
-export function seedLedger(clock: Clock = fixedClock('2026-06-15T12:00:00.000Z')): Ledger {
-  const ledger = new Ledger({ clock });
-
+export function seedInto(ledger: Ledger): void {
   ledger.append(
     content({
       statement: 'Drop the Redis cache layer',
@@ -123,6 +121,10 @@ export function seedLedger(clock: Clock = fixedClock('2026-06-15T12:00:00.000Z')
     }),
     { confirmedBy: 'U_MAINTAINER', confidence: 0.9 },
   );
+}
 
+export function seedLedger(clock: Clock = fixedClock('2026-06-15T12:00:00.000Z')): Ledger {
+  const ledger = new Ledger({ clock });
+  seedInto(ledger);
   return ledger;
 }

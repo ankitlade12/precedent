@@ -10,6 +10,7 @@
     "@precedent/mcp-server": "^0.1.0",
     "@precedent/proposer": "^0.1.0",
     "@precedent/slack-app": "^0.1.0",
+    "@precedent/store-sqlite": "^0.1.0",
     "dotenv": "^16.4.7"
   },
   "scripts": {

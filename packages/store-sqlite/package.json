@@ -1,0 +1,16 @@
+{
+  "name": "@precedent/store-sqlite",
+  "version": "0.1.0",
+  "description": "Durable, append-only LedgerStore backed by SQLite (node:sqlite) — with database-enforced immutability triggers. Synchronous; zero external dependencies.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@precedent/ledger-core": "^0.1.0"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}
