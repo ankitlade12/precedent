@@ -2,17 +2,12 @@
   "display_information": {
     "name": "Precedent",
     "description": "The decision memory your team and its agents can trust.",
-    "background_color": "#1a1a2e",
-    "long_description": "Precedent records what your team decided, why, and what it rejected — grounded in links to the source messages. When a decision is later overturned, Precedent knows, so recall always returns the current call. Other agents can ask has_this_been_decided() before they act."
+    "background_color": "#1a1a2e"
   },
   "features": {
     "bot_user": {
       "display_name": "precedent",
       "always_online": true
-    },
-    "assistant_view": {
-      "assistant_description": "Ask what the team decided, with receipts.",
-      "suggested_prompts": []
     },
     "slash_commands": [
       {
@@ -34,29 +29,17 @@
   "oauth_config": {
     "scopes": {
       "bot": [
-        "app_mentions:read",
-        "assistant:write",
         "chat:write",
         "chat:write.public",
         "channels:history",
         "channels:join",
         "groups:history",
-        "im:history",
         "commands",
-        "reactions:read",
         "search:read.public"
       ]
     }
   },
   "settings": {
-    "event_subscriptions": {
-      "bot_events": [
-        "app_mention",
-        "assistant_thread_started",
-        "assistant_thread_context_changed",
-        "message.im"
-      ]
-    },
     "interactivity": {
       "is_enabled": true
     },
