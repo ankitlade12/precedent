@@ -7,7 +7,7 @@
 Precedent records what your team decided, *why*, and what it *rejected* — grounded in links to the exact source messages. When a decision is later overturned, Precedent knows, so recall always returns the current call and can walk the history. And any agent in the workspace can ask `has_this_been_decided()` before it acts.
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/node-%E2%89%A520-339933.svg?logo=node.js&logoColor=white)](.nvmrc)
+[![Node](https://img.shields.io/badge/node-%E2%89%A522-339933.svg?logo=node.js&logoColor=white)](.nvmrc)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg?logo=typescript&logoColor=white)](tsconfig.base.json)
 [![Tests](https://img.shields.io/badge/tests-41%20passing-brightgreen.svg)](#tests)
 [![Slack platform](https://img.shields.io/badge/Slack-RTS%20API%20%2B%20MCP-4A154B.svg?logo=slack&logoColor=white)](https://docs.slack.dev/ai/slack-mcp-server/)
@@ -85,7 +85,7 @@ A strict dependency direction enforces the architecture: **`ledger-core` has zer
 ## Quickstart
 
 ```bash
-nvm use                 # Node >= 20 (see .nvmrc)
+nvm use                 # Node >= 22 (see .nvmrc)
 npm install
 npm test                # 41 tests across all packages
 npm run typecheck       # strict TypeScript, whole workspace
