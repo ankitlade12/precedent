@@ -4,10 +4,12 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildDecisionProposalCard,
+  buildEditDecisionModal,
   buildOnboardingBrief,
   buildRecallAnswer,
   buildRelitigationNudge,
   CONFIRM_ACTION,
+  EDIT_MODAL_CALLBACK,
 } from '../src/blocks';
 
 function content(overrides: Partial<DecisionContent>): DecisionContent {
@@ -41,6 +43,28 @@ describe('buildDecisionProposalCard', () => {
     expect(JSON.stringify(blocks)).toContain(CONFIRM_ACTION);
     expect(JSON.stringify(blocks)).toContain('Drop the Redis cache');
     expect(JSON.stringify(blocks)).toContain('tok-123');
+  });
+});
+
+describe('buildEditDecisionModal', () => {
+  it('prefills the proposal and carries message metadata', () => {
+    const view = buildEditDecisionModal({
+      statement: 'Drop the Redis cache',
+      rationale: 'ops load not worth it',
+      alternatives: [{ option: 'Memcached', reason: 'more to run' }],
+      decidedBy: ['U_ALICE'],
+      citations: [{ permalink: 'https://acme.slack.com/archives/C1/p1', channelId: 'C1', ts: '1.1' }],
+      channelId: 'C1',
+      confidence: 0.55,
+    }, { token: 'tok-123', channelId: 'C1', messageTs: '123.456' });
+
+    const rendered = JSON.stringify(view);
+    expect(view.callback_id).toBe(EDIT_MODAL_CALLBACK);
+    expect(rendered).toContain('Drop the Redis cache');
+    expect(rendered).toContain('ops load not worth it');
+    expect(rendered).toContain('Memcached - more to run');
+    expect(rendered).toContain('tok-123');
+    expect(rendered).toContain('123.456');
   });
 });
 

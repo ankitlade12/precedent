@@ -1,11 +1,25 @@
 import type { DecisionRecord } from '@precedent/ledger-core';
 import type { DecisionAnswer, DecisionProposal, SourceMessage } from '@precedent/proposer';
 import type { KnownBlock } from '@slack/types';
+import type { View } from '@slack/types/dist/views';
 
 /** Block action ids for the proposal card buttons. */
 export const CONFIRM_ACTION = 'precedent_confirm';
 export const EDIT_ACTION = 'precedent_edit';
 export const DISMISS_ACTION = 'precedent_dismiss';
+export const EDIT_MODAL_CALLBACK = 'precedent_edit_modal';
+export const EDIT_STATEMENT_BLOCK = 'precedent_edit_statement';
+export const EDIT_STATEMENT_ACTION = 'statement';
+export const EDIT_RATIONALE_BLOCK = 'precedent_edit_rationale';
+export const EDIT_RATIONALE_ACTION = 'rationale';
+export const EDIT_ALTERNATIVES_BLOCK = 'precedent_edit_alternatives';
+export const EDIT_ALTERNATIVES_ACTION = 'alternatives';
+
+export interface EditDecisionModalMetadata {
+  token: string;
+  channelId: string;
+  messageTs: string;
+}
 
 /**
  * The capture card: a single, unobtrusive Block Kit message posted at the moment a
@@ -52,6 +66,58 @@ export function buildDecisionProposalCard(proposal: DecisionProposal, token?: st
       ],
     },
   ];
+}
+
+/** Modal for correcting the proposal before it is confirmed into the immutable ledger. */
+export function buildEditDecisionModal(proposal: DecisionProposal, metadata: EditDecisionModalMetadata): View {
+  return {
+    type: 'modal',
+    callback_id: EDIT_MODAL_CALLBACK,
+    private_metadata: JSON.stringify(metadata),
+    title: { type: 'plain_text', text: 'Edit decision' },
+    submit: { type: 'plain_text', text: 'Save' },
+    close: { type: 'plain_text', text: 'Cancel' },
+    blocks: [
+      {
+        type: 'input',
+        block_id: EDIT_STATEMENT_BLOCK,
+        label: { type: 'plain_text', text: 'Decision' },
+        element: {
+          type: 'plain_text_input',
+          action_id: EDIT_STATEMENT_ACTION,
+          initial_value: proposal.statement,
+          max_length: 240,
+        },
+      },
+      {
+        type: 'input',
+        block_id: EDIT_RATIONALE_BLOCK,
+        label: { type: 'plain_text', text: 'Rationale' },
+        optional: true,
+        element: {
+          type: 'plain_text_input',
+          action_id: EDIT_RATIONALE_ACTION,
+          initial_value: proposal.rationale,
+          multiline: true,
+          max_length: 2000,
+        },
+      },
+      {
+        type: 'input',
+        block_id: EDIT_ALTERNATIVES_BLOCK,
+        label: { type: 'plain_text', text: 'Rejected alternatives' },
+        hint: { type: 'plain_text', text: 'One per line: option - reason' },
+        optional: true,
+        element: {
+          type: 'plain_text_input',
+          action_id: EDIT_ALTERNATIVES_ACTION,
+          initial_value: formatAlternativesForEdit(proposal),
+          multiline: true,
+          max_length: 2000,
+        },
+      },
+    ],
+  };
 }
 
 /**
@@ -196,6 +262,10 @@ export function buildOnboardingBrief(decisions: DecisionRecord[]): KnownBlock[] 
 
 function formatUsers(userIds: string[]): string {
   return userIds.length > 0 ? userIds.map((id) => `<@${id}>`).join(', ') : '_unknown_';
+}
+
+function formatAlternativesForEdit(proposal: DecisionProposal): string {
+  return proposal.alternatives.map((alt) => `${alt.option} - ${alt.reason}`).join('\n');
 }
 
 function truncate(text: string, max: number): string {

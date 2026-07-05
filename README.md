@@ -9,7 +9,7 @@ Precedent records what your team decided, *why*, and what it *rejected* — grou
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-339933.svg?logo=node.js&logoColor=white)](.nvmrc)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg?logo=typescript&logoColor=white)](tsconfig.base.json)
-[![Tests](https://img.shields.io/badge/tests-40%20passing-brightgreen.svg)](#tests)
+[![Tests](https://img.shields.io/badge/tests-41%20passing-brightgreen.svg)](#tests)
 [![Slack platform](https://img.shields.io/badge/Slack-RTS%20API%20%2B%20MCP-4A154B.svg?logo=slack&logoColor=white)](https://docs.slack.dev/ai/slack-mcp-server/)
 
 </div>
@@ -87,7 +87,7 @@ A strict dependency direction enforces the architecture: **`ledger-core` has zer
 ```bash
 nvm use                 # Node >= 20 (see .nvmrc)
 npm install
-npm test                # 40 tests across all packages
+npm test                # 41 tests across all packages
 npm run typecheck       # strict TypeScript, whole workspace
 npm run eval            # detection precision/recall on a labeled set
 
@@ -95,7 +95,7 @@ cp .env.example .env    # then fill in your Slack sandbox tokens
 npm start               # Slack app (Socket Mode) + MCP server on :3010/mcp
 ```
 
-The built-in `HeuristicDetector` needs **no** API key — it detects decisions from explicit commitment cues and favors precision, since a human confirms every proposal. Set **`ANTHROPIC_API_KEY`** in `.env` to switch to the Claude-backed `LlmDetector` for richer extraction (the composition root logs which detector is active).
+The built-in `HeuristicDetector` needs **no** API key — it detects decisions from explicit commitment cues and favors precision, since a human confirms every proposal. Set **`ANTHROPIC_API_KEY`** in `.env` to switch to the Claude-backed `LlmDetector` for richer extraction (the composition root logs which detector is active). For Slack smoke tests, set **`PRECEDENT_DETECTOR=heuristic`** to force the no-LLM path even when an Anthropic key is present.
 
 ### Connecting to Slack
 
@@ -116,7 +116,7 @@ The built-in `HeuristicDetector` needs **no** API key — it detects decisions f
 ✓ packages/slack-app     — proposal card, recall answer, relitigation nudge, onboarding brief
 ✓ apps/server            — seeded demo history verifiable and supersession-correct
 
-Test Files  9 passed (9)   Tests  40 passed (40)
+Test Files  10 passed (10)   Tests  41 passed (41)
 
 Detection eval (`npm run eval`) on the labeled set: the no‑key **heuristic** scores precision 100% · recall 71% · F1 83%; with `ANTHROPIC_API_KEY` set, the **Claude detector** (`claude-opus-4-8`) scores **100% / 100% / 100%** — it catches the commitments the heuristic's precision‑first cues miss, with no new false positives.
 ```

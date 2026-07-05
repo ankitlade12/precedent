@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import type { Ledger } from '@precedent/ledger-core';
+import type { Alternative, Ledger } from '@precedent/ledger-core';
 import { type DecisionProposal, type Detector, recall, type ThreadMessage, toDecisionContent } from '@precedent/proposer';
 import { App } from '@slack/bolt';
 import type { WebClient } from '@slack/web-api';
@@ -8,12 +8,20 @@ import type { WebClient } from '@slack/web-api';
 import {
   buildBackfillPrompt,
   buildDecisionProposalCard,
+  buildEditDecisionModal,
   buildOnboardingBrief,
   buildRecallAnswer,
   buildRelitigationNudge,
   CONFIRM_ACTION,
   DISMISS_ACTION,
+  EDIT_ALTERNATIVES_ACTION,
+  EDIT_ALTERNATIVES_BLOCK,
   EDIT_ACTION,
+  EDIT_MODAL_CALLBACK,
+  EDIT_RATIONALE_ACTION,
+  EDIT_RATIONALE_BLOCK,
+  EDIT_STATEMENT_ACTION,
+  EDIT_STATEMENT_BLOCK,
 } from './blocks';
 import { createRtsSearchClient } from './rts';
 
@@ -191,11 +199,51 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
     await respond({ replace_original: true, text: `:white_check_mark: Logged to the decision ledger as \`${record.id}\`.` });
   });
 
-  app.action(EDIT_ACTION, async ({ ack, respond }) => {
+  app.action(EDIT_ACTION, async ({ ack, body, action, client, respond }) => {
     await ack();
-    // TODO: open a modal pre-filled with the proposal for inline editing.
-    await respond({
-      text: "Inline editing isn't wired up yet — Confirm to log it as-is, or Dismiss and capture a cleaner message.",
+    const token = 'value' in action ? action.value : undefined;
+    const proposal = token === undefined ? undefined : pending.get(token);
+    const metadata = editMetadataFromActionBody(body);
+    const triggerId = triggerIdFromActionBody(body);
+    if (token === undefined || proposal === undefined || metadata === undefined || triggerId === undefined) {
+      await respond({ text: 'That proposal has expired or cannot be edited here. Re-run the capture if needed.' });
+      return;
+    }
+
+    await client.views.open({
+      trigger_id: triggerId,
+      view: buildEditDecisionModal(proposal, { token, ...metadata }),
+    });
+  });
+
+  app.view(EDIT_MODAL_CALLBACK, async ({ ack, view, client }) => {
+    const statement = textInputValue(view.state.values, EDIT_STATEMENT_BLOCK, EDIT_STATEMENT_ACTION).trim();
+    if (statement.length === 0) {
+      await ack({ response_action: 'errors', errors: { [EDIT_STATEMENT_BLOCK]: 'Decision cannot be empty.' } });
+      return;
+    }
+    await ack();
+
+    const metadata = parseEditMetadata(view.private_metadata);
+    const proposal = metadata === undefined ? undefined : pending.get(metadata.token);
+    if (metadata === undefined || proposal === undefined) {
+      return;
+    }
+
+    const updated: DecisionProposal = {
+      ...proposal,
+      statement,
+      rationale: textInputValue(view.state.values, EDIT_RATIONALE_BLOCK, EDIT_RATIONALE_ACTION).trim(),
+      alternatives: parseAlternativesForEdit(
+        textInputValue(view.state.values, EDIT_ALTERNATIVES_BLOCK, EDIT_ALTERNATIVES_ACTION),
+      ),
+    };
+    pending.set(metadata.token, updated);
+    await client.chat.update({
+      channel: metadata.channelId,
+      ts: metadata.messageTs,
+      blocks: buildDecisionProposalCard(updated, metadata.token),
+      text: 'Log this decision?',
     });
   });
 
@@ -280,6 +328,76 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
   });
 
   return app;
+}
+
+interface EditMessageMetadata {
+  channelId: string;
+  messageTs: string;
+}
+
+interface EditModalMetadata extends EditMessageMetadata {
+  token: string;
+}
+
+interface ActionBodyWithMessage {
+  trigger_id?: string;
+  channel?: { id?: string };
+  container?: { channel_id?: string; message_ts?: string };
+}
+
+type ViewStateValues = Record<string, Record<string, { value?: string | null }>>;
+
+function triggerIdFromActionBody(body: unknown): string | undefined {
+  return (body as ActionBodyWithMessage).trigger_id;
+}
+
+function editMetadataFromActionBody(body: unknown): EditMessageMetadata | undefined {
+  const actionBody = body as ActionBodyWithMessage;
+  const channelId = actionBody.container?.channel_id ?? actionBody.channel?.id;
+  const messageTs = actionBody.container?.message_ts;
+  if (channelId === undefined || messageTs === undefined) {
+    return undefined;
+  }
+  return { channelId, messageTs };
+}
+
+function parseEditMetadata(raw: string | undefined): EditModalMetadata | undefined {
+  if (raw === undefined || raw.length === 0) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(raw) as Partial<EditModalMetadata>;
+    if (
+      typeof parsed.token === 'string' &&
+      typeof parsed.channelId === 'string' &&
+      typeof parsed.messageTs === 'string'
+    ) {
+      return { token: parsed.token, channelId: parsed.channelId, messageTs: parsed.messageTs };
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
+
+function textInputValue(values: ViewStateValues, blockId: string, actionId: string): string {
+  return values[blockId]?.[actionId]?.value ?? '';
+}
+
+function parseAlternativesForEdit(raw: string): Alternative[] {
+  return raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const [option, ...reasonParts] = line.split(/\s+-\s+/);
+      const reason = reasonParts.join(' - ').trim();
+      return {
+        option: (option ?? '').trim(),
+        reason: reason.length > 0 ? reason : 'Considered and not chosen in the source thread.',
+      };
+    })
+    .filter((alternative) => alternative.option.length > 0);
 }
 
 function isQuestionOrReopen(text: string): boolean {

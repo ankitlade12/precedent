@@ -12,6 +12,11 @@ import { seedInto } from './seed';
 
 /** Use Claude for decision extraction when configured; otherwise the precision-first heuristic. */
 function buildDetector(): Detector {
+  if (process.env.PRECEDENT_DETECTOR === 'heuristic') {
+    console.log('Detector: heuristic (forced by PRECEDENT_DETECTOR)');
+    return new HeuristicDetector();
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (apiKey !== undefined && apiKey !== '') {
     const model = process.env.ANTHROPIC_MODEL;
