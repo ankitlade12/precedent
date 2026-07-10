@@ -42,8 +42,14 @@ const STOPWORDS = new Set([
  * history. Recall correctness is code, not model output: a reversed decision is
  * never returned as current without the correction.
  */
-export function recall(ledger: Ledger, topic: string): DecisionAnswer {
-  const match = bestMatch(ledger, topic);
+export interface RecallOptions {
+  minOverlap?: number;
+  /** Restrict results to decisions sourced from these Slack channels. */
+  channelIds?: readonly string[];
+}
+
+export function recall(ledger: Ledger, topic: string, options?: RecallOptions): DecisionAnswer {
+  const match = bestMatch(ledger, topic, options?.minOverlap ?? 2, options?.channelIds);
   if (match === undefined) {
     return { decided: false, history: [], wasSuperseded: false };
   }
@@ -57,19 +63,33 @@ export function recall(ledger: Ledger, topic: string): DecisionAnswer {
   };
 }
 
-function bestMatch(ledger: Ledger, topic: string): DecisionRecord | undefined {
+function bestMatch(
+  ledger: Ledger,
+  topic: string,
+  minOverlap: number,
+  channelIds: readonly string[] | undefined,
+): DecisionRecord | undefined {
   const terms = meaningfulTokens(topic);
   if (terms.length === 0) {
     return undefined;
   }
   // Require real overlap so a single incidental shared word can't fabricate a
-  // confident, cited-looking answer to an unrelated question.
-  const required = Math.min(2, terms.length);
+  // confident, cited-looking answer to an unrelated question. `/precedent why`
+  // asks for 2; the relitigation guard passes 1, because it already runs only on
+  // messages that read as a question/reopen, where a single distinctive decided
+  // term (a tech name like "npm") is a strong enough signal.
+  const required = Math.min(Math.max(1, minOverlap), terms.length);
 
   let best: { record: DecisionRecord; score: number } | undefined;
   for (const record of ledger.all()) {
+    if (channelIds !== undefined && !channelIds.includes(record.content.channelId)) {
+      continue;
+    }
+    const alternatives = record.content.alternatives
+      .map((alternative) => `${alternative.option} ${alternative.reason}`)
+      .join(' ');
     const haystack = new Set(
-      meaningfulTokens(`${record.content.statement} ${record.content.rationale} ${record.content.scope ?? ''}`),
+      meaningfulTokens(`${record.content.statement} ${record.content.rationale} ${alternatives} ${record.content.scope ?? ''}`),
     );
     const score = terms.reduce((sum, term) => sum + (haystack.has(term) ? 1 : 0), 0);
     // `>=` so that on a tie the most recently appended decision wins (recency).

@@ -26,15 +26,22 @@ export function createRtsSearchClient(client: WebClient): SearchClient {
         query,
         // Phrase the query as a natural-language question to trigger semantic search
         // (falls back to keyword search on non–AI-enabled workspaces).
-      })) as { results?: { messages?: RtsResultMessage[] }; messages?: RtsResultMessage[] };
+      })) as {
+        results?: { messages?: RtsResultMessage[] } | RtsResultMessage[];
+        messages?: RtsResultMessage[];
+      };
 
-      const messages = response.results?.messages ?? response.messages ?? [];
-      return messages.map((message) => ({
-        permalink: message.permalink ?? '',
-        channelId: message.channel_id ?? message.channel ?? '',
-        ts: message.ts ?? '',
-        text: message.text ?? '',
-      }));
+      const messages = Array.isArray(response.results)
+        ? response.results
+        : response.results?.messages ?? response.messages ?? [];
+      return messages
+        .map((message) => ({
+          permalink: message.permalink ?? '',
+          channelId: message.channel_id ?? message.channel ?? '',
+          ts: message.ts ?? '',
+          text: message.text ?? '',
+        }))
+        .filter((message) => message.channelId.length > 0 && message.ts.length > 0 && message.text.length > 0);
     },
   };
 }

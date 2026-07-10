@@ -9,6 +9,8 @@ const ExtractionSchema = z.object({
   statement: z.string(),
   rationale: z.string(),
   alternatives: z.array(z.object({ option: z.string(), reason: z.string() })),
+  decisionType: z.enum(['technical', 'process', 'policy', 'governance', 'product', 'other']),
+  scope: z.string(),
   deciderIds: z.array(z.string()),
   sourceTs: z.array(z.string()),
   confidence: z.number(),
@@ -33,11 +35,13 @@ const JSON_SCHEMA = {
         required: ['option', 'reason'],
       },
     },
+    decisionType: { type: 'string', enum: ['technical', 'process', 'policy', 'governance', 'product', 'other'] },
+    scope: { type: 'string' },
     deciderIds: { type: 'array', items: { type: 'string' } },
     sourceTs: { type: 'array', items: { type: 'string' } },
     confidence: { type: 'number' },
   },
-  required: ['decisionMade', 'statement', 'rationale', 'alternatives', 'deciderIds', 'sourceTs', 'confidence'],
+  required: ['decisionMade', 'statement', 'rationale', 'alternatives', 'decisionType', 'scope', 'deciderIds', 'sourceTs', 'confidence'],
 };
 
 const SYSTEM_PROMPT = `You extract *decisions* from Slack threads for a decision ledger.
@@ -46,6 +50,7 @@ From the thread, determine whether a decision was made and, if so, extract:
 - the decision as one clear line,
 - the rationale (why), grounded in what was actually said,
 - the alternatives that were considered and rejected, each with the reason it lost,
+- a type (technical, process, policy, governance, product, or other) and a short scope when supported,
 - the Slack user IDs of the people who made the call,
 - the ts values of the messages that most directly evidence the decision,
 - a confidence in [0,1].
@@ -104,6 +109,7 @@ export function toProposal(extraction: Extraction, context: ThreadContext): Deci
   }
 
   const byTs = new Map(context.messages.map((message) => [message.ts, message]));
+  const participantIds = new Set(context.messages.map((message) => message.userId));
   const cited: Citation[] = extraction.sourceTs
     .map((ts) => byTs.get(ts))
     .filter((message): message is (typeof context.messages)[number] => message !== undefined)
@@ -122,7 +128,14 @@ export function toProposal(extraction: Extraction, context: ThreadContext): Deci
     statement: extraction.statement.trim(),
     rationale: extraction.rationale.trim(),
     alternatives: extraction.alternatives,
-    decidedBy: extraction.deciderIds.length > 0 ? extraction.deciderIds : last !== undefined ? [last.userId] : [],
+    type: extraction.decisionType,
+    ...(extraction.scope.trim().length > 0 ? { scope: extraction.scope.trim() } : {}),
+    decidedBy:
+      extraction.deciderIds.filter((id) => participantIds.has(id)).length > 0
+        ? extraction.deciderIds.filter((id) => participantIds.has(id))
+        : last !== undefined
+          ? [last.userId]
+          : [],
     citations,
     channelId: context.channelId,
     ...(context.threadTs !== undefined ? { threadTs: context.threadTs } : {}),

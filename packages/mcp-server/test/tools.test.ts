@@ -41,6 +41,11 @@ describe('has_this_been_decided', () => {
   it('reports an undecided topic honestly', () => {
     expect(hasThisBeenDecided(seeded(), 'deployment platform').decided).toBe(false);
   });
+
+  it('can constrain agent recall to a Slack channel', () => {
+    expect(hasThisBeenDecided(seeded(), 'auth provider', 'C_OTHER').decided).toBe(false);
+    expect(hasThisBeenDecided(seeded(), 'auth provider', 'C1').decided).toBe(true);
+  });
 });
 
 describe('get_decision / list_decisions', () => {

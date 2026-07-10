@@ -10,6 +10,8 @@ export interface DecisionDto {
   alternatives: { option: string; reason: string }[];
   decidedBy: string[];
   decidedAt: string;
+  channelId: string;
+  scope?: string;
   citations: { permalink: string; channelId: string; ts: string }[];
 }
 
@@ -26,8 +28,8 @@ export interface HasThisBeenDecidedResult {
  * topic (supersession resolved), its history, and the source permalinks — so an
  * agent is anchored to what was actually decided, not a stale or invented answer.
  */
-export function hasThisBeenDecided(ledger: Ledger, topic: string): HasThisBeenDecidedResult {
-  const answer = recall(ledger, topic);
+export function hasThisBeenDecided(ledger: Ledger, topic: string, channelId?: string): HasThisBeenDecidedResult {
+  const answer = recall(ledger, topic, channelId === undefined ? undefined : { channelIds: [channelId] });
   if (!answer.decided || answer.current === undefined) {
     return { decided: false, history: [], wasSuperseded: false };
   }
@@ -44,8 +46,11 @@ export function getDecision(ledger: Ledger, id: string): DecisionDto | undefined
   return record === undefined ? undefined : toDto(ledger, record);
 }
 
-export function listDecisions(ledger: Ledger): DecisionDto[] {
-  return ledger.currentDecisions().map((record) => toDto(ledger, record));
+export function listDecisions(ledger: Ledger, channelId?: string): DecisionDto[] {
+  return ledger
+    .currentDecisions()
+    .filter((record) => channelId === undefined || record.content.channelId === channelId)
+    .map((record) => toDto(ledger, record));
 }
 
 function toDto(ledger: Ledger, record: DecisionRecord): DecisionDto {
@@ -57,6 +62,8 @@ function toDto(ledger: Ledger, record: DecisionRecord): DecisionDto {
     alternatives: record.content.alternatives,
     decidedBy: record.content.decidedBy,
     decidedAt: record.content.decidedAt,
+    channelId: record.content.channelId,
+    ...(record.content.scope !== undefined ? { scope: record.content.scope } : {}),
     citations: record.content.citations.map((citation) => ({
       permalink: citation.permalink,
       channelId: citation.channelId,

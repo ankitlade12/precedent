@@ -11,11 +11,11 @@ Tiers: **[MVP]** ships in the hackathon build · **[v1]** the near term after ·
 - **Recall:** `/precedent why …` and @mention, supersession-aware, answered with receipts.
 - **Provenance:** permalink grounding; append-only ledger with a hash chain.
 - **MCP server:** `has_this_been_decided`, `get_decision`, `list_decisions`.
-- **Seed workspace:** a believable community history with a reversed decision, for the demo.
+- **Real workspace history:** genuine Slack conversations captured through the same human-confirmed flow used in production, including a real reversed decision with clickable receipts.
+- **Persistence & safety:** durable SQLite, startup chain verification, channel-scoped Slack recall, and bearer-protected MCP.
 
 ## v1 — near term
 
-- **Persistent store** (libSQL/SQLite with append-only triggers; Turso/Postgres scale path).
 - **RTS backfill wizard** — retroactively propose decisions for threads older than the ledger.
 - **Emoji nomination**, pending queue + batch confirm, confirmer routing & policy.
 - **Richer records** — tags, related links (relates-to / depends-on), reversibility flag, review-by date, record version history.

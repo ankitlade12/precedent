@@ -1,4 +1,4 @@
-import type { Alternative, Citation } from '@precedent/ledger-core';
+import type { Alternative, Citation, DecisionType } from '@precedent/ledger-core';
 
 import type { DecisionProposal, ThreadContext, ThreadMessage } from './types';
 
@@ -40,11 +40,21 @@ export class HeuristicDetector implements Detector {
       decidedBy: [cue.userId],
       citations: [toCitation(cue)],
       channelId: context.channelId,
+      type: inferDecisionType(cue.text),
       ...(context.threadTs !== undefined ? { threadTs: context.threadTs } : {}),
       confidence: 0.55,
     };
     return Promise.resolve(proposal);
   }
+}
+
+function inferDecisionType(text: string): DecisionType {
+  if (/\b(api|database|datastore|cache|framework|library|runtime|deploy|architecture|package|redis|memcached|postgres|sqlite|npm|pnpm|yarn)\b/i.test(text)) return 'technical';
+  if (/\b(policy|must|required|prohibited|retention|privacy)\b/i.test(text)) return 'policy';
+  if (/\b(governance|vote|maintainer|license|committee)\b/i.test(text)) return 'governance';
+  if (/\b(roadmap|customer|feature|pricing|product)\b/i.test(text)) return 'product';
+  if (/\b(process|workflow|review|meeting|release)\b/i.test(text)) return 'process';
+  return 'other';
 }
 
 function toCitation(message: ThreadMessage): Citation {

@@ -9,7 +9,7 @@ Precedent records what your team decided, *why*, and what it *rejected* — grou
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-339933.svg?logo=node.js&logoColor=white)](.nvmrc)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg?logo=typescript&logoColor=white)](tsconfig.base.json)
-[![Tests](https://img.shields.io/badge/tests-41%20passing-brightgreen.svg)](#tests)
+[![Tests](https://img.shields.io/badge/tests-57%20passing-brightgreen.svg)](#tests)
 [![Slack platform](https://img.shields.io/badge/Slack-RTS%20API%20%2B%20MCP-4A154B.svg?logo=slack&logoColor=white)](https://docs.slack.dev/ai/slack-mcp-server/)
 
 </div>
@@ -92,6 +92,7 @@ npm run typecheck       # strict TypeScript, whole workspace
 npm run eval            # detection precision/recall on a labeled set
 
 cp .env.example .env    # then fill in your Slack sandbox tokens
+                       # set a strong MCP_BEARER_TOKEN before exposing the endpoint
 npm start               # Slack app (Socket Mode) + MCP server on :3010/mcp
 ```
 
@@ -114,9 +115,9 @@ The built-in `HeuristicDetector` needs **no** API key — it detects decisions f
 ✓ packages/llm-anthropic — Claude extraction → grounded proposal mapping
 ✓ packages/mcp-server    — has_this_been_decided / get_decision / list_decisions
 ✓ packages/slack-app     — proposal card, recall answer, relitigation nudge, onboarding brief
-✓ apps/server            — seeded demo history verifiable and supersession-correct
+✓ apps/server            — production configuration and durable MCP audit logging
 
-Test Files  10 passed (10)   Tests  41 passed (41)
+Test Files  14 passed (14)   Tests  57 passed (57)
 
 Detection eval (`npm run eval`) on the labeled set: the no‑key **heuristic** scores precision 100% · recall 71% · F1 83%; with `ANTHROPIC_API_KEY` set, the **Claude detector** (`claude-opus-4-8`) scores **100% / 100% / 100%** — it catches the commitments the heuristic's precision‑first cues miss, with no new false positives.
 ```
@@ -145,11 +146,13 @@ Precedent is aimed first at the teams that feel this pain most sharply and can l
 
 ## Roadmap
 
-**Built:** capture with confirm, recall with supersession, permalink provenance, **ambient detection + the relitigation guard**, the **Claude-backed detector**, an **MCP server**, a **Home-tab ledger**, `/precedent onboard`, **durable SQLite**, a **detection eval**, and a seeded demo workspace. → **v1:** RTS backfill wizard, weekly digest, GitHub links, ADR export, multi-workspace. → **Beyond:** cross-agent precedent gate, enterprise governance (approvals, retention, audit), analytics (reversal rate, most-relitigated topics). Full detail in **[docs/roadmap.md](docs/roadmap.md)**.
+**Built:** capture with confirm/edit/dismiss, explicit and suggested supersession with a decision selector and old → new lifecycle visual, channel-scoped recall with a dated decision timeline, permalink provenance, **ambient detection + the relitigation guard**, mention recall, the **Claude-backed detector**, a Slackbot-connected **MCP server with structured invocation auditing**, a guided and permission-filtered **Home-tab ledger**, `/precedent onboard`, **durable SQLite**, and a **detection eval**. Production starts with an empty ledger and only accepts human-confirmed decisions grounded in genuine Slack permalinks—there is no runtime demo seeding path. → **v1:** RTS backfill wizard, weekly digest, GitHub links, ADR export, multi-workspace. → **Beyond:** cross-agent precedent gate, enterprise governance (approvals, retention, audit), analytics (reversal rate, most-relitigated topics). Full detail in **[docs/roadmap.md](docs/roadmap.md)**.
 
 ## Status
 
 Built for the **[Slack Agent Builder Challenge](https://slackhack.devpost.com/)** — *Slack Agent for Good* track. Submission deadline **July 13, 2026, 5:00 PM PDT**.
+
+For sandbox setup, the real-message seed flow, Slackbot MCP connection, and the three-minute judging script, see **[docs/demo-runbook.md](docs/demo-runbook.md)**. Submission language is ready in **[docs/submission-pitch.md](docs/submission-pitch.md)**.
 
 ## License
 

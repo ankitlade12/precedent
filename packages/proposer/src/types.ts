@@ -29,6 +29,11 @@ export interface DecisionProposal {
   citations: Citation[];
   channelId: string;
   threadTs?: string;
+  /** Human-reviewable lifecycle metadata. These remain proposals until confirm. */
+  type?: DecisionContent['type'];
+  scope?: string;
+  supersedesId?: string;
+  supersessionType?: SupersessionType;
   /** Detection confidence in [0, 1]. */
   confidence: number;
 }
@@ -45,7 +50,7 @@ export interface ConfirmOptions {
 export function toDecisionContent(proposal: DecisionProposal, options: ConfirmOptions): DecisionContent {
   return {
     statement: proposal.statement,
-    type: options.type ?? 'other',
+    type: options.type ?? proposal.type ?? 'other',
     rationale: proposal.rationale,
     alternatives: proposal.alternatives,
     decidedBy: proposal.decidedBy,
@@ -53,8 +58,12 @@ export function toDecisionContent(proposal: DecisionProposal, options: ConfirmOp
     citations: proposal.citations,
     channelId: proposal.channelId,
     ...(proposal.threadTs !== undefined ? { threadTs: proposal.threadTs } : {}),
-    ...(options.scope !== undefined ? { scope: options.scope } : {}),
-    ...(options.supersedesId !== undefined ? { supersedesId: options.supersedesId } : {}),
-    ...(options.supersessionType !== undefined ? { supersessionType: options.supersessionType } : {}),
+    ...((options.scope ?? proposal.scope) !== undefined ? { scope: options.scope ?? proposal.scope } : {}),
+    ...((options.supersedesId ?? proposal.supersedesId) !== undefined
+      ? { supersedesId: options.supersedesId ?? proposal.supersedesId }
+      : {}),
+    ...((options.supersessionType ?? proposal.supersessionType) !== undefined
+      ? { supersessionType: options.supersessionType ?? proposal.supersessionType }
+      : {}),
   };
 }

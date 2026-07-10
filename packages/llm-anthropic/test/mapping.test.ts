@@ -19,6 +19,8 @@ const detected: Extraction = {
   statement: 'Use Postgres as the primary database',
   rationale: 'Relational integrity and the team knows it',
   alternatives: [{ option: 'DynamoDB', reason: 'overkill for our write volume' }],
+  decisionType: 'technical',
+  scope: 'storage',
   deciderIds: ['U2'],
   sourceTs: ['2.2'],
   confidence: 0.9,
@@ -32,11 +34,13 @@ describe('toProposal', () => {
     expect(proposal?.citations[0]?.permalink).toBe('https://x.slack.com/p2');
     expect(proposal?.decidedBy).toEqual(['U2']);
     expect(proposal?.alternatives[0]?.option).toBe('DynamoDB');
+    expect(proposal?.type).toBe('technical');
+    expect(proposal?.scope).toBe('storage');
     expect(proposal?.confidence).toBe(0.9);
   });
 
   it('returns null when no decision was made or confidence is low', () => {
-    const none: Extraction = { decisionMade: false, statement: '', rationale: '', alternatives: [], deciderIds: [], sourceTs: [], confidence: 0.1 };
+    const none: Extraction = { decisionMade: false, statement: '', rationale: '', alternatives: [], decisionType: 'other', scope: '', deciderIds: [], sourceTs: [], confidence: 0.1 };
     expect(toProposal(none, ctx())).toBeNull();
     expect(toProposal({ ...detected, confidence: 0.2 }, ctx())).toBeNull();
     expect(toProposal({ ...detected, statement: '   ' }, ctx())).toBeNull();

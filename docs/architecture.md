@@ -47,7 +47,7 @@ Everything below is verified in [`packages/ledger-core/test`](../packages/ledger
 
 `ledger-core` depends on nothing but Node's `crypto`. Everything variable is a **port**:
 
-- **`LedgerStore`** — persistence. `InMemoryLedgerStore` ships today (perfect for the demo and for millisecond, dependency-free tests). The production adapter is a libSQL/SQLite store — see [Storage](#storage).
+- **`LedgerStore`** — persistence. `InMemoryLedgerStore` keeps domain tests fast; the running app uses the durable SQLite adapter — see [Storage](#storage).
 - **`Detector` / `LlmClient`** (in `proposer`) — decision detection. `HeuristicDetector` is the precision-first default; `LlmDetector` is the pluggable production path behind a provider-agnostic port.
 - **`SearchClient`** (in `proposer`) — the Real-Time Search backfill, implemented in production by `assistant.search.context`.
 
@@ -57,11 +57,11 @@ Everything below is verified in [`packages/ledger-core/test`](../packages/ledger
 
 **Recall.** Someone asks *"why did we decide X?"* (via `/precedent why …` or an @mention) → the deterministic layer searches the structured ledger, resolves supersession, and answers with receipts: the decision, rationale, rejected alternatives, deciders, and permalinks. For decisions older than the ledger, the RTS backfill port finds likely source threads and offers to create a record.
 
-**Agent consult (MCP).** Precedent runs its own MCP server (`/mcp`, Streamable HTTP). Any agent calls `has_this_been_decided(topic)` and gets the current decision + history + citations before it acts. This is the through-line to agent governance: making agents accountable to a durable record of prior decisions.
+**Agent consult (MCP).** Precedent runs its own MCP server (`/mcp`, Streamable HTTP). Any agent calls `has_this_been_decided(topic)` and gets the current decision + history + citations before it acts. Ordinary clients use bearer authentication; Slackbot connects through Slack's MCP client and signed-request verification. Each consultation writes a minimal structured event to the append-only JSONL audit path, making the agent guardrail visible and debuggable. This is the through-line to agent governance: making agents accountable to a durable record of prior decisions.
 
 ## <a id="storage"></a>Storage: the production path
 
-The MVP runs on `InMemoryLedgerStore`. The production adapter is **SQLite via libSQL** (local file for self-hosting; [Turso](https://turso.tech) or Postgres/Neon as the scale path — a decision ledger is an append-heavy, read-mostly, single-writer workload, which is SQLite's sweet spot):
+The running app uses **SQLite via Node's built-in `node:sqlite`** (local file for self-hosting; Turso or Postgres/Neon remain scale paths — a decision ledger is an append-heavy, read-mostly, single-writer workload, which is SQLite's sweet spot):
 
 ```sql
 CREATE TABLE decision_records (
@@ -83,7 +83,7 @@ CREATE TRIGGER decision_records_no_delete BEFORE DELETE ON decision_records
   BEGIN SELECT RAISE(ABORT, 'decision_records is append-only'); END;
 ```
 
-One design note: the current `LedgerStore` port is synchronous (ideal for the pure, deterministic core and its tests). The libSQL adapter introduces async I/O, so the persistent path adds an async store variant at the composition boundary — the domain logic in `ledger-core` stays synchronous and pure.
+The `LedgerStore` port stays synchronous so the deterministic core remains simple and testable. The current local SQLite adapter uses synchronous `node:sqlite`; a remote database adapter would introduce an async composition boundary.
 
 ## Trust posture
 

@@ -293,7 +293,7 @@ The build is the long pole and it is where the engineering strength compounds, s
 
 | Days | Focus |
 |---|---|
-| 0 to 1 (now) | Request the Slack AI Search sandbox. Lock scope. Stand up the repo and a skeleton seed workspace. Draft the architecture diagram. |
+| 0 to 1 (now) | Request the Slack AI Search sandbox. Lock scope. Stand up the repo and capture a genuine decision history through the product. Draft the architecture diagram. |
 | 2 to 4 | Deterministic core: ledger, schema, confirmation state machine, permalink provenance, supersession resolution. Test it hard. |
 | 4 to 6 | Model layer: detection, extraction, and the in channel confirm loop in Block Kit. Capture working end to end. |
 | 6 to 8 | Recall flow, RTS backfill for older decisions, and the MCP server exposure. |
@@ -316,7 +316,7 @@ The engineering stays out of the first two minutes, because the presentation axi
 - **Detection precision.** False positives annoy people. Mitigated by the human confirm step, which makes false positives one tap to dismiss and lets the model favor precision.
 - **Surveillance perception.** A memory tool that watches channels can feel invasive. Mitigated by invite only channels, visible proposals before storage, respected permissions, and no training on the data, all surfaced in the design.
 - **Scope creep.** Twelve days is unforgiving. Mitigated by the ruthless MVP cut above.
-- **Seed data realism.** The whole demo depends on a believable history to recall. Mitigated by building the seed workspace early, not the night before.
+- **Evidence realism.** The whole demo depends on genuine history with working receipts. Mitigated by capturing every demo decision through the production confirmation flow in the judging workspace.
 
 ## 15. Two things to do today
 

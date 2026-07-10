@@ -28,6 +28,7 @@ describe('HeuristicDetector', () => {
     expect(proposal?.citations[0]?.permalink).toBe('https://acme.slack.com/archives/C_ENG/p2');
     expect(proposal?.rationale.toLowerCase()).toContain('ops load');
     expect(proposal?.alternatives[0]?.option.toLowerCase()).toContain('memcached');
+    expect(proposal?.type).toBe('technical');
     expect(proposal?.confidence).toBeGreaterThan(0);
   });
 

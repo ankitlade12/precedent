@@ -8,7 +8,7 @@ import { createSlackApp } from '@precedent/slack-app';
 import { SqliteLedgerStore } from '@precedent/store-sqlite';
 
 import { loadConfig } from './config';
-import { seedInto } from './seed';
+import { createMcpAuditSink } from './audit';
 
 /** Use Claude for decision extraction when configured; otherwise the precision-first heuristic. */
 function buildDetector(): Detector {
@@ -37,20 +37,42 @@ async function main(): Promise<void> {
 
   const store = new SqliteLedgerStore(config.databasePath);
   const ledger = new Ledger({ store });
-  if (store.size() === 0) {
-    seedInto(ledger);
-    console.log(`Seeded ${ledger.all().length} demo decisions into ${config.databasePath}`);
+
+  const integrity = ledger.verifyChain();
+  if (!integrity.ok) {
+    throw new Error(`Decision ledger integrity check failed at sequence ${integrity.brokenAt ?? 'unknown'}.`);
   }
 
   const detector = buildDetector();
   const slack = createSlackApp(config.slack, { ledger, detector });
+  const audit = createMcpAuditSink(config.mcpAuditPath);
 
-  await slack.start();
-  const mcpHandle = await startMcpHttp(() => createMcpServer(ledger), config.mcp);
+  let mcpHandle: Awaited<ReturnType<typeof startMcpHttp>> | undefined;
+  try {
+    await slack.start();
+    mcpHandle = await startMcpHttp(
+      ({ authSource }) => createMcpServer(ledger, { audit, authSource }),
+      config.mcp,
+    );
+  } catch (error) {
+    await slack.stop().catch(() => undefined);
+    store.close();
+    throw error;
+  }
 
   console.log(
     `⚡ Precedent is running — Slack connected; MCP on :${mcpHandle.port}${config.mcp.path}; ${ledger.all().length} decisions on record`,
   );
+
+  let stopping = false;
+  const shutdown = async (): Promise<void> => {
+    if (stopping) return;
+    stopping = true;
+    await Promise.allSettled([slack.stop(), mcpHandle.close()]);
+    store.close();
+  };
+  process.once('SIGINT', () => void shutdown());
+  process.once('SIGTERM', () => void shutdown());
 }
 
 main().catch((error: unknown) => {

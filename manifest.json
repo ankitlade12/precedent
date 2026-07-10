@@ -35,10 +35,14 @@
       "bot": [
         "chat:write",
         "chat:write.public",
+        "app_mentions:read",
+        "channels:read",
         "channels:history",
         "channels:join",
+        "groups:read",
         "groups:history",
         "commands",
+        "mcp:connect",
         "search:read.public"
       ]
     }
@@ -47,6 +51,8 @@
     "event_subscriptions": {
       "bot_events": [
         "message.channels",
+        "message.groups",
+        "app_mention",
         "app_home_opened"
       ]
     },
