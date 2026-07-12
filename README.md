@@ -104,7 +104,7 @@ The built-in `HeuristicDetector` needs **no** API key — it detects decisions f
 2. Install it to your **Slack developer sandbox** (join the [Slack Developer Program](https://api.slack.com/developer-program) to provision one).
 3. Copy the bot, app-level, and signing tokens into `.env`.
 
-> **Note on the Real-Time Search API & MCP server** (both GA since 2026‑02‑17): semantic recall requires a **Slack AI–enabled** workspace, and both surfaces require an **internal or directory-published** app (unlisted apps are blocked). Precedent's recall runs against the deterministic ledger regardless; RTS is the backfill path for decisions older than the ledger. See [docs/research/hackathon.md](docs/research/hackathon.md).
+> **Note on the Real-Time Search API & MCP server:** semantic recall requires a **Slack AI–enabled** workspace, and both surfaces require an **internal or directory-published** app. Precedent's recall runs against the deterministic ledger regardless; RTS is the backfill path for decisions older than the ledger.
 
 ## <a id="tests"></a>Tests & verification
 
@@ -126,7 +126,7 @@ The MCP path is additionally verified **at runtime**: a live MCP client connects
 
 ## Where Precedent sits
 
-Being honest about what exists is what keeps this from being dismissed on novelty. The full, source-verified map is in **[docs/research/competitive-landscape.md](docs/research/competitive-landscape.md)**; the short version:
+Being honest about what exists is what keeps this from being dismissed on novelty. The short competitive map:
 
 | | Ambient detect (from chat) | Rejected alternatives | Auto, linked supersession | Permalink provenance | Agent-callable (MCP) |
 |---|:---:|:---:|:---:|:---:|:---:|
@@ -146,17 +146,16 @@ Precedent is aimed first at the teams that feel this pain most sharply and can l
 
 ## Roadmap
 
-**Built:** capture with confirm/edit/dismiss, explicit and suggested supersession with a decision selector and old → new lifecycle visual, channel-scoped recall with a dated decision timeline, permalink provenance, **ambient detection + the relitigation guard**, mention recall, the **Claude-backed detector**, a Slackbot-connected **MCP server with structured invocation auditing**, a guided and permission-filtered **Home-tab ledger**, `/precedent onboard`, **durable SQLite**, and a **detection eval**. Production starts with an empty ledger and only accepts human-confirmed decisions grounded in genuine Slack permalinks—there is no runtime demo seeding path. → **v1:** RTS backfill wizard, weekly digest, GitHub links, ADR export, multi-workspace. → **Beyond:** cross-agent precedent gate, enterprise governance (approvals, retention, audit), analytics (reversal rate, most-relitigated topics). Full detail in **[docs/roadmap.md](docs/roadmap.md)**.
+**Built:** capture with confirm/edit/dismiss, explicit and suggested supersession with a decision selector and old → new lifecycle visual, channel-scoped recall with a dated decision timeline, permalink provenance, **ambient detection + the relitigation guard**, mention recall, the **Claude-backed detector**, a Slackbot-connected **MCP server with structured invocation auditing**, a guided and permission-filtered **Home-tab ledger**, `/precedent onboard`, **durable SQLite**, and a **detection eval**. Production starts with an empty ledger and only accepts human-confirmed decisions grounded in genuine Slack permalinks—there is no runtime demo seeding path. → **v1:** RTS backfill wizard, weekly digest, GitHub links, ADR export, multi-workspace. → **Beyond:** cross-agent precedent gate, enterprise governance, and analytics.
 
 ## Status
 
 Built for the **[Slack Agent Builder Challenge](https://slackhack.devpost.com/)** — *Slack Agent for Good* track. Submission deadline **July 13, 2026, 5:00 PM PDT**.
 
-For sandbox setup, the real-message seed flow, Slackbot MCP connection, and the three-minute judging script, see **[docs/demo-runbook.md](docs/demo-runbook.md)**. Submission language is ready in **[docs/submission-pitch.md](docs/submission-pitch.md)**.
+For sandbox setup, the real-message capture flow, Slackbot MCP connection, and judging sequence, see **[docs/demo-runbook.md](docs/demo-runbook.md)**.
 
 The final submission package is in **[docs/devpost-submission.md](docs/devpost-submission.md)**, with a timed **[video script](docs/video-script.md)**, **[judge testing guide](docs/judge-testing.md)**, and upload-ready **[architecture diagram](docs/assets/precedent-architecture.png)**.
 For an always-on judging environment, use the included Dockerfile and **[stable deployment guide](docs/deployment.md)**.
-The live go/no-go list is **[docs/submission-status.md](docs/submission-status.md)**.
 
 ## License
 

@@ -2,8 +2,6 @@
 
 Copy this into a draft, then rewrite a few phrases in your own voice before final submission. Judges explicitly recommend specific, human-written descriptions over generic AI prose.
 
-Track completion in [`submission-status.md`](submission-status.md).
-
 ## Project name
 
 **Precedent**
