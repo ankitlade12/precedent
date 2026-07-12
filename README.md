@@ -46,7 +46,7 @@ flowchart LR
     P --> H{Human review}
     H -->|Confirm or edit| L[Deterministic ledger]
     H -->|Dismiss| X[No record created]
-    L --> R[Current precedent + history]
+    L --> R["Current precedent + history"]
     R --> S[Slack recall]
     R --> A[MCP tools for other agents]
     L --> C[Slack permalink receipts]
@@ -58,10 +58,10 @@ flowchart LR
 graph TB
     subgraph "SLACK EXPERIENCE"
         CHAT[Ambient channel and thread messages]
-        CARD[Confirm / Edit / Dismiss proposal card]
+        CARD["Confirm / Edit / Dismiss proposal card"]
         HOME[App Home decision ledger]
-        CMD[/precedent commands and mentions]
-        SB[Slackbot / independent agent]
+        CMD["/precedent commands and mentions"]
+        SB["Slackbot / independent agent"]
     end
 
     subgraph "APPLICATION LAYER"
@@ -79,8 +79,8 @@ graph TB
     end
 
     subgraph "DATA LAYER"
-        DB[(SQLite decision store)]
-        LOG[(JSONL MCP audit log)]
+        DB[("SQLite decision store")]
+        LOG[("JSONL MCP audit log")]
     end
 
     CHAT --> APP
@@ -111,9 +111,9 @@ graph LR
     GH[GitHub main branch] --> BUILD[Railway Docker build]
     BUILD --> SVC[Precedent service]
     SVC --> SOCKET[Slack Socket Mode]
-    SVC --> HEALTH[GET /health]
-    SVC --> MCPHTTP[POST /mcp]
-    SVC --> VOL[(Railway volume /data)]
+    SVC --> HEALTH["GET /health"]
+    SVC --> MCPHTTP["POST /mcp"]
+    SVC --> VOL[("Railway volume /data")]
     SVC --> ANTH[Anthropic API]
 ```
 
