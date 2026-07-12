@@ -2,7 +2,7 @@
   "name": "@precedent/llm-anthropic",
   "version": "0.1.0",
   "description": "Claude-backed decision detector: extracts a structured, grounded decision proposal from a thread via the Anthropic API. Everything it returns is still a proposal a human confirms.",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"

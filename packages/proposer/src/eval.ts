@@ -70,7 +70,7 @@ export const EVAL_CASES: readonly LabeledCase[] = [
   make('lets-go-with', "let's go with GitHub Actions for CI", true),
   make('we-decided', 'we decided to drop the Redis cache', true),
   make('well-use', "we'll use Vitest for testing", true),
-  make('decision-prefix', 'decision: adopt Apache-2.0 for the project', true),
+  make('decision-prefix', 'decision: adopt the MIT License for the project', true),
   make('implicit-affirm', 'Alright, Postgres it is then.', true),
   make('implicit-agree', 'Agreed, we ship on Friday.', true),
   make('question-db', 'what database should we use?', false),

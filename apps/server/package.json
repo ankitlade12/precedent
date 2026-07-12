@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Composition root: wires the ledger, model layer, Slack surface, and MCP server into one deployable process.",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@precedent/llm-anthropic": "^0.1.0",

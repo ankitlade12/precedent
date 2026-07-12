@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "An ambient decision ledger for Slack — records what a team decided, why, what was rejected, and when a decision is later overturned, grounded in links to the source messages.",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"

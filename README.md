@@ -6,7 +6,7 @@
 
 Precedent records what your team decided, *why*, and what it *rejected* — grounded in links to the exact source messages. When a decision is later overturned, Precedent knows, so recall always returns the current call and can walk the history. And any agent in the workspace can ask `has_this_been_decided()` before it acts.
 
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-339933.svg?logo=node.js&logoColor=white)](.nvmrc)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg?logo=typescript&logoColor=white)](tsconfig.base.json)
 [![Tests](https://img.shields.io/badge/tests-59%20passing-brightgreen.svg)](#tests)
@@ -154,9 +154,8 @@ Built for the **[Slack Agent Builder Challenge](https://slackhack.devpost.com/)*
 
 For sandbox setup, the real-message capture flow, Slackbot MCP connection, and judging sequence, see **[docs/demo-runbook.md](docs/demo-runbook.md)**.
 
-The final submission package is in **[docs/devpost-submission.md](docs/devpost-submission.md)**, with a timed **[video script](docs/video-script.md)**, **[judge testing guide](docs/judge-testing.md)**, and upload-ready **[architecture diagram](docs/assets/precedent-architecture.png)**.
-For an always-on judging environment, use the included Dockerfile and **[stable deployment guide](docs/deployment.md)**.
+Submission assets include a timed **[video script](docs/video-script.md)**, **[judge testing guide](docs/judge-testing.md)**, and upload-ready **[architecture diagram](docs/assets/precedent-architecture.png)**.
 
 ## License
 
-[Apache-2.0](LICENSE) © The Precedent Authors. See [NOTICE](NOTICE).
+[MIT](LICENSE) © 2026 Ankit Hemant Lade and Precedent contributors.

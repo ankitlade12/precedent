@@ -10,7 +10,7 @@ Use only genuine messages captured through Precedent in the judging sandbox. The
 4. Run `npm run typecheck`, `npm test`, then `npm start`.
 5. Verify `/precedent`, `@Precedent`, the Home tab, one RTS miss, and one authenticated MCP call before recording.
 6. In App Settings, confirm the app has an **MCP Servers** feature. Slack is still rolling this feature out to developers.
-7. Follow [`deployment.md`](deployment.md) and deploy the app and MCP endpoint at a stable public host before submitting. A temporary `trycloudflare.com` or free ngrok URL is suitable for recording, not for unattended judging.
+7. Verify the Railway deployment and stable `/mcp` endpoint before submitting. A temporary tunnel is suitable for local development, not unattended judging.
 8. Follow [`judge-testing.md`](judge-testing.md) from a non-owner Member account.
 
 ## Judge access — mandatory
