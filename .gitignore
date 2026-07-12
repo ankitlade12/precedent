@@ -39,6 +39,7 @@ Thumbs.db
 
 # Tooling / assistant state (not part of the product)
 .claude/
+AGENTS.md
 
 # Misc
 .cache/
