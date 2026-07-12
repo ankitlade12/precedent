@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Precedent Devpost project thumbnail</title>
+  <desc id="desc">Precedent, the decision memory teams and agents can trust, illustrated with an old Postgres decision resolving to a current SQLite decision with source receipts.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#140d23"/>
+      <stop offset="0.58" stop-color="#241338"/>
+      <stop offset="1" stop-color="#102824"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#36c5f0"/>
+      <stop offset="1" stop-color="#2eb67d"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#07040c" flood-opacity="0.46"/>
+    </filter>
+    <style>
+      .wordmark { font: 750 92px Inter, ui-sans-serif, system-ui, sans-serif; fill: #fff; letter-spacing: -3px; }
+      .tagline { font: 540 34px Inter, ui-sans-serif, system-ui, sans-serif; fill: #d9cfe4; }
+      .eyebrow { font: 750 18px Inter, ui-sans-serif, system-ui, sans-serif; fill: #9fe3d2; letter-spacing: 2.6px; }
+      .headline { font: 720 50px Inter, ui-sans-serif, system-ui, sans-serif; fill: #fff; letter-spacing: -1.2px; }
+      .body { font: 450 24px Inter, ui-sans-serif, system-ui, sans-serif; fill: #bcaecb; }
+      .card-title { font: 720 29px Inter, ui-sans-serif, system-ui, sans-serif; fill: #fff; }
+      .card-text { font: 470 19px Inter, ui-sans-serif, system-ui, sans-serif; fill: #cfc4da; }
+      .meta { font: 650 16px Inter, ui-sans-serif, system-ui, sans-serif; fill: #a998ba; letter-spacing: .4px; }
+      .pill-dark { font: 760 15px Inter, ui-sans-serif, system-ui, sans-serif; fill: #0d1513; letter-spacing: 1px; }
+    </style>
+  </defs>
+
+  <rect width="1500" height="1000" fill="url(#background)"/>
+  <circle cx="1320" cy="60" r="390" fill="#2eb67d" opacity=".055"/>
+  <circle cx="70" cy="960" r="350" fill="#36c5f0" opacity=".045"/>
+
+  <rect x="92" y="88" width="12" height="110" rx="6" fill="url(#brand)"/>
+  <text x="138" y="163" class="wordmark">Precedent</text>
+  <text x="138" y="210" class="tagline">Decision memory your team—and its agents—can trust.</text>
+
+  <text x="100" y="352" class="eyebrow">NOT ANOTHER SEARCH BOT</text>
+  <text x="100" y="425" class="headline">Know what was decided.</text>
+  <text x="100" y="486" class="headline">Know what is still true.</text>
+  <text x="100" y="555" class="body">Human-confirmed decisions, complete history,</text>
+  <text x="100" y="591" class="body">and real source receipts—available to every agent.</text>
+
+  <rect x="100" y="680" width="278" height="48" rx="24" fill="#36c5f0"/>
+  <text x="129" y="711" class="pill-dark">HUMAN CONFIRMED</text>
+  <rect x="394" y="680" width="220" height="48" rx="24" fill="#2eb67d"/>
+  <text x="427" y="711" class="pill-dark">MCP NATIVE</text>
+  <text x="100" y="801" class="meta">BUILT FOR VOLUNTEER-LED TEAMS</text>
+
+  <g filter="url(#shadow)">
+    <rect x="790" y="294" width="610" height="222" rx="28" fill="#2a2037" stroke="#665475" stroke-width="2"/>
+    <rect x="824" y="326" width="126" height="36" rx="18" fill="#463952"/>
+    <text x="849" y="350" class="meta" fill="#cfc4da">REVERSED</text>
+    <text x="824" y="413" class="card-title" opacity=".62">Postgres was the primary datastore</text>
+    <line x1="824" y1="402" x2="1307" y2="402" stroke="#e01e5a" stroke-width="4" opacity=".78"/>
+    <text x="824" y="461" class="card-text">More infrastructure than a volunteer project needs</text>
+
+    <path d="M1095 516 V550" stroke="#a895ba" stroke-width="4"/>
+    <path d="M1079 543 L1095 561 L1111 543" fill="none" stroke="#a895ba" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <rect x="750" y="560" width="650" height="258" rx="30" fill="#193a35" stroke="#2eb67d" stroke-width="4"/>
+    <rect x="786" y="595" width="140" height="38" rx="19" fill="#2eb67d"/>
+    <text x="814" y="620" class="pill-dark">CURRENT</text>
+    <circle cx="1350" cy="615" r="20" fill="#2eb67d"/>
+    <path d="M1339 615 l8 8 16-19" fill="none" stroke="#10201d" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="786" y="689" class="card-title">SQLite is the primary datastore</text>
+    <text x="786" y="736" class="card-text">Lower operational cost · simpler self-hosting</text>
+    <text x="786" y="782" class="meta">FULL HISTORY  ·  REAL RECEIPTS  ·  DR-ac224b138ca0</text>
+  </g>
+
+  <rect x="808" y="850" width="535" height="66" rx="20" fill="#3b2040" stroke="#e01e5a" stroke-width="2"/>
+  <circle cx="847" cy="883" r="13" fill="#e01e5a"/>
+  <text x="878" y="891" class="card-text">An independent agent consulted Precedent via MCP</text>
+
+  <text x="100" y="930" class="meta">SLACK AGENT FOR GOOD</text>
+</svg>

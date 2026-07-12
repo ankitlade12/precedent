@@ -2,7 +2,7 @@ import { createHmac } from 'node:crypto';
 
 import { describe, expect, it } from 'vitest';
 
-import { verifySlackSignature } from '../src/http';
+import { isHealthRequest, verifySlackSignature } from '../src/http';
 
 function signedHeaders(secret: string, timestamp: number, body: string): Record<string, string> {
   return {
@@ -23,5 +23,13 @@ describe('verifySlackSignature', () => {
   it('rejects tampering and replayed requests', () => {
     expect(verifySlackSignature(secret, signedHeaders(secret, now, body), `${body} `, now)).toBe(false);
     expect(verifySlackSignature(secret, signedHeaders(secret, now - 301, body), body, now)).toBe(false);
+  });
+});
+
+describe('MCP HTTP health route', () => {
+  it('only accepts GET /health', () => {
+    expect(isHealthRequest('GET', '/health')).toBe(true);
+    expect(isHealthRequest('POST', '/health')).toBe(false);
+    expect(isHealthRequest('GET', '/mcp')).toBe(false);
   });
 });

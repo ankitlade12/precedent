@@ -22,4 +22,8 @@ describe('loadConfig', () => {
   it('passes a non-empty RTS user token to the Slack adapter', () => {
     expect(loadConfig({ ...required, SLACK_USER_TOKEN: 'xoxp-test' }).slack.userToken).toBe('xoxp-test');
   });
+
+  it('uses a managed host PORT when MCP_PORT is not set', () => {
+    expect(loadConfig({ ...required, PORT: '8080' }).mcp.port).toBe(8080);
+  });
 });

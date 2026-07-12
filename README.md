@@ -9,7 +9,7 @@ Precedent records what your team decided, *why*, and what it *rejected* — grou
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-339933.svg?logo=node.js&logoColor=white)](.nvmrc)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg?logo=typescript&logoColor=white)](tsconfig.base.json)
-[![Tests](https://img.shields.io/badge/tests-57%20passing-brightgreen.svg)](#tests)
+[![Tests](https://img.shields.io/badge/tests-59%20passing-brightgreen.svg)](#tests)
 [![Slack platform](https://img.shields.io/badge/Slack-RTS%20API%20%2B%20MCP-4A154B.svg?logo=slack&logoColor=white)](https://docs.slack.dev/ai/slack-mcp-server/)
 
 </div>
@@ -87,7 +87,7 @@ A strict dependency direction enforces the architecture: **`ledger-core` has zer
 ```bash
 nvm use                 # Node >= 22 (see .nvmrc)
 npm install
-npm test                # 41 tests across all packages
+npm test                # 59 tests across 14 test files
 npm run typecheck       # strict TypeScript, whole workspace
 npm run eval            # detection precision/recall on a labeled set
 
@@ -117,7 +117,7 @@ The built-in `HeuristicDetector` needs **no** API key — it detects decisions f
 ✓ packages/slack-app     — proposal card, recall answer, relitigation nudge, onboarding brief
 ✓ apps/server            — production configuration and durable MCP audit logging
 
-Test Files  14 passed (14)   Tests  57 passed (57)
+Test Files  14 passed (14)   Tests  59 passed (59)
 
 Detection eval (`npm run eval`) on the labeled set: the no‑key **heuristic** scores precision 100% · recall 71% · F1 83%; with `ANTHROPIC_API_KEY` set, the **Claude detector** (`claude-opus-4-8`) scores **100% / 100% / 100%** — it catches the commitments the heuristic's precision‑first cues miss, with no new false positives.
 ```
@@ -153,6 +153,10 @@ Precedent is aimed first at the teams that feel this pain most sharply and can l
 Built for the **[Slack Agent Builder Challenge](https://slackhack.devpost.com/)** — *Slack Agent for Good* track. Submission deadline **July 13, 2026, 5:00 PM PDT**.
 
 For sandbox setup, the real-message seed flow, Slackbot MCP connection, and the three-minute judging script, see **[docs/demo-runbook.md](docs/demo-runbook.md)**. Submission language is ready in **[docs/submission-pitch.md](docs/submission-pitch.md)**.
+
+The final submission package is in **[docs/devpost-submission.md](docs/devpost-submission.md)**, with a timed **[video script](docs/video-script.md)**, **[judge testing guide](docs/judge-testing.md)**, and upload-ready **[architecture diagram](docs/assets/precedent-architecture.png)**.
+For an always-on judging environment, use the included Dockerfile and **[stable deployment guide](docs/deployment.md)**.
+The live go/no-go list is **[docs/submission-status.md](docs/submission-status.md)**.
 
 ## License
 

@@ -10,6 +10,19 @@ Use only genuine messages captured through Precedent in the judging sandbox. The
 4. Run `npm run typecheck`, `npm test`, then `npm start`.
 5. Verify `/precedent`, `@Precedent`, the Home tab, one RTS miss, and one authenticated MCP call before recording.
 6. In App Settings, confirm the app has an **MCP Servers** feature. Slack is still rolling this feature out to developers.
+7. Follow [`deployment.md`](deployment.md) and deploy the app and MCP endpoint at a stable public host before submitting. A temporary `trycloudflare.com` or free ngrok URL is suitable for recording, not for unattended judging.
+8. Follow [`judge-testing.md`](judge-testing.md) from a non-owner Member account.
+
+## Judge access — mandatory
+
+Developer sandboxes cap membership and manage users at the Enterprise organization level. Before submission:
+
+1. Click the organization name → **Tools & settings** → **Organization settings**.
+2. Open **People** → **Members**.
+3. Deactivate unused placeholder accounts if the eight-user sandbox cap blocks invitations.
+4. Invite `slackhack@salesforce.com` and `testing@devpost.com` as **Members**, not Guests.
+5. Confirm both addresses appear in the organization member list.
+6. Put the exact sandbox URL and the instructions from [`judge-testing.md`](judge-testing.md) in Devpost.
 
 ## Real source messages
 

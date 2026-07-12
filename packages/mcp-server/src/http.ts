@@ -55,6 +55,13 @@ export async function startMcpHttp(
 
   async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const requestPath = req.url === undefined ? undefined : new URL(req.url, 'http://localhost').pathname;
+    if (isHealthRequest(req.method, requestPath)) {
+      res.statusCode = 200;
+      res.setHeader('content-type', 'application/json');
+      res.setHeader('cache-control', 'no-store');
+      res.end(JSON.stringify({ status: 'ok' }));
+      return;
+    }
     if (requestPath !== path) {
       res.statusCode = 404;
       res.end('Not found');
@@ -144,6 +151,11 @@ export async function startMcpHttp(
         httpServer.close((error) => (error ? reject(error) : resolve()));
       }),
   };
+}
+
+/** Pure route predicate kept separate so readiness behavior is testable without binding a port. */
+export function isHealthRequest(method: string | undefined, path: string | undefined): boolean {
+  return method === 'GET' && path === '/health';
 }
 
 function respondError(res: ServerResponse, message: string): void {

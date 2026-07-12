@@ -17,7 +17,7 @@
 
 1. **Slack AI capabilities**, 2. **MCP server integration**, or 3. **Real-Time Search (RTS) API**.
 
-Precedent uses **the RTS API** (recall backfill) and consumes the **Slack MCP server** for actions.
+Precedent uses **the RTS API** for recall backfill and exposes its own **MCP server**, which Slackbot consumes as an independent agent.
 
 **New (June 2026) — Slackbot is now an MCP *client*.** You can connect *your own* MCP server to Slackbot and it auto-discovers and invokes your tools from conversation ([announcement](https://docs.slack.dev/changelog/2026/06/18/slackbot-mcp-client/), [blog](https://slack.com/blog/news/slackbots-mcp-client)). So connecting **Precedent's MCP server to Slackbot** — a user asks Slackbot *"have we decided X?"* → Slackbot calls `has_this_been_decided()` → answers with the current decision and its supersession — is both a native demo of *agents consulting Precedent* and a legitimate Slack-side MCP integration. (This softens an earlier caveat: an *isolated* self-hosted MCP server with no Slack consumer was the weak compliance story; Slackbot's client fixes it. Keep the RTS API in the demo regardless.) Auth options: Slack identity auth, no-auth, Dynamic Client Registration, or manual OAuth. Both MCP and RTS require an **internal or directory-published** app; **semantic** RTS needs a **Slack AI–enabled** workspace.
 
@@ -37,7 +37,7 @@ How Precedent maps: **Tech** — deterministic core + RTS + our own MCP server (
 - [ ] **Demo video < 3 minutes** (story-first; lead with the supersession moment)
 - [ ] **Architecture diagram** (see [architecture.md](../architecture.md))
 - [ ] **Slack sandbox URL**, with test access granted to **BOTH** `slackhack@salesforce.com` **and** `testing@devpost.com`
-- [ ] **Slack App ID**
+- [ ] **Slack App ID** (required for the Organizations track; optional verification detail for Agent for Good)
 
 ## Getting access (critical path)
 

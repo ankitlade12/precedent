@@ -1,5 +1,7 @@
 # Architecture
 
+![Precedent architecture and data flow](assets/precedent-architecture.png)
+
 Precedent's single most important design decision is a **hard boundary between a language model that proposes and a deterministic engine that owns the truth.**
 
 - The **model** (or the built-in heuristic) is allowed to be fuzzy. Everything it produces is a *proposal*: a candidate decision with an extracted statement, rationale, rejected alternatives, deciders, and citations. A human confirms, edits, or dismisses it.
