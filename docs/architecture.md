@@ -89,4 +89,4 @@ The `LedgerStore` port stays synchronous so the deterministic core remains simpl
 
 ## Trust posture
 
-For a memory tool, trust *is* the product, so the guarantees are on the surface: Precedent only watches channels it is invited to; every proposed record is visible before it is stored; Slack permissions are respected on both capture and recall; the ledger is append-only with a full trail of who confirmed and edited; and customer conversation is never used to train models. See [SECURITY.md](../SECURITY.md).
+For a memory tool, trust *is* the product, so the guarantees are on the surface: Precedent only watches channels it is invited to; every proposed record is visible before it is stored; Slack permissions are respected on both capture and recall; the ledger is append-only with a full trail of who confirmed and edited; and customer conversation is never used to train models.
