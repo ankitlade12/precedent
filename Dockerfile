@@ -20,7 +20,10 @@ ENV DATABASE_PATH=/data/precedent.db
 ENV MCP_AUDIT_PATH=/data/mcp-audit.jsonl
 
 RUN mkdir -p /data && chown -R node:node /app /data
-USER node
+
+# Railway mounts persistent volumes at runtime after image ownership is set.
+# The mounted directory is root-owned, so the process must retain write access
+# in order for SQLite and the append-only MCP audit log to initialize.
 
 EXPOSE 3010
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
