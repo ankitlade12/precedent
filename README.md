@@ -66,8 +66,6 @@ flowchart TD
     E -.->|has_this_been_decided?| I[MCP server for other agents]
 ```
 
-Read the full design in **[docs/architecture.md](docs/architecture.md)**.
-
 ## Monorepo layout
 
 A strict dependency direction enforces the architecture: **`ledger-core` has zero dependencies on Slack, the LLM, or HTTP.** It is the deterministic, well-tested heart; everything else depends on it.
@@ -151,10 +149,6 @@ Precedent is aimed first at the teams that feel this pain most sharply and can l
 ## Status
 
 Built for the **[Slack Agent Builder Challenge](https://slackhack.devpost.com/)** — *Slack Agent for Good* track. Submission deadline **July 13, 2026, 5:00 PM PDT**.
-
-For sandbox setup, the real-message capture flow, Slackbot MCP connection, and judging sequence, see **[docs/demo-runbook.md](docs/demo-runbook.md)**.
-
-Submission assets include a timed **[video script](docs/video-script.md)**, **[judge testing guide](docs/judge-testing.md)**, and upload-ready **[architecture diagram](docs/assets/precedent-architecture.png)**.
 
 ## License
 
