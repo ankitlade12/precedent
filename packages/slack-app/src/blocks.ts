@@ -416,7 +416,7 @@ export function buildOnboardingBrief(decisions: DecisionRecord[]): KnownBlock[] 
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: 'Precedent is ready. Capture one real decision to turn this Home tab into a living, source-grounded ledger.',
+          text: 'Precedent is installed. Activate it in a channel, then capture one real decision to create a living, source-grounded ledger.',
         },
       },
       { type: 'divider' },
@@ -424,26 +424,33 @@ export function buildOnboardingBrief(decisions: DecisionRecord[]): KnownBlock[] 
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: '*1 · Make a decision in a channel*\nTry: _“We’re going with Postgres over DynamoDB because relational integrity matters.”_',
+          text: '*1 · Activate a channel*\nIn a public channel, run `/precedent onboard`. In a private channel, run `/invite @Precedent` first.',
         },
       },
       {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: '*2 · Review the proposal card*\nConfirm it, edit the extracted rationale, or dismiss it. Nothing enters the ledger without a human.',
+          text: '*2 · Make a decision*\nTry: _“We’re going with Postgres over DynamoDB because relational integrity matters.”_',
         },
       },
       {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: '*3 · Recall it anywhere*\nUse `/precedent why <topic>` or ask Slackbot to check Precedent before acting.',
+          text: '*3 · Review the proposal card*\nConfirm it, edit the extracted rationale, or dismiss it. Nothing enters the ledger without a human.',
+        },
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: '*4 · Recall it anywhere*\nUse `/precedent why <topic>` or ask Slackbot to check Precedent before acting.',
         },
       },
       {
         type: 'context',
-        elements: [{ type: 'mrkdwn', text: 'Manual fallback: open any source message → More actions → *Log this decision*.' }],
+        elements: [{ type: 'mrkdwn', text: 'Missed a message posted before activation? Run `/precedent log` to recover the latest decision.' }],
       },
     ];
   }

@@ -27,7 +27,7 @@ const DECISION_CUES: readonly RegExp[] = [
 export class HeuristicDetector implements Detector {
   detect(context: ThreadContext): Promise<DecisionProposal | null> {
     const cue = context.messages.find((message) =>
-      DECISION_CUES.some((pattern) => pattern.test(message.text)),
+      DECISION_CUES.some((pattern) => pattern.test(normalizeSlackText(message.text))),
     );
     if (cue === undefined) {
       return Promise.resolve(null);
@@ -46,6 +46,11 @@ export class HeuristicDetector implements Detector {
     };
     return Promise.resolve(proposal);
   }
+}
+
+/** Slack clients and copied prose commonly use typographic apostrophes. */
+function normalizeSlackText(text: string): string {
+  return text.replace(/[\u2018\u2019]/g, "'");
 }
 
 function inferDecisionType(text: string): DecisionType {

@@ -137,13 +137,16 @@ export function createSlackApp(config: SlackAppConfig, deps: SlackAppDeps): App 
     }
 
     if (subcommand === 'onboard') {
+      // Slash commands can be invoked before the bot has joined a public
+      // channel. Join here so onboarding also activates ambient capture.
+      await client.conversations.join({ channel: command.channel_id }).catch(() => undefined);
       const decisions = deps.ledger.currentDecisions().filter((record) => record.content.channelId === command.channel_id);
       await respond({ blocks: buildOnboardingBrief(decisions) });
       return;
     }
 
     await respond(
-      'Usage:\n• `/precedent why <topic>` — what did we decide, with receipts\n• `/precedent log` — capture the most recent decision here\n• `/precedent onboard` — the decisions a new contributor should know',
+      'Usage:\n• `/precedent onboard` — activate Precedent in this channel\n• `/precedent log` — capture the most recent decision here\n• `/precedent why <topic>` — what did we decide, with receipts\n_Private channel? First run `/invite @Precedent`._',
     );
   });
 
@@ -624,7 +627,7 @@ function safeErrorMessage(error: unknown): string {
 
 function looksLikeDecision(text: string): boolean {
   return /\b(decid(?:e|ed)|agreed|going with|we(?:'ll| will)|adopt|drop|switch(?:ing)?|standardize|final call|ship|stick(?:ing)? with)\b/i.test(
-    text,
+    text.replace(/[\u2018\u2019]/g, "'"),
   );
 }
 

@@ -36,4 +36,14 @@ describe('HeuristicDetector', () => {
     const proposal = await detector.detect(ctx('I think maybe Redis could work but I am not sure yet'));
     expect(proposal).toBeNull();
   });
+
+  it('recognizes commitment cues containing a typographic apostrophe', async () => {
+    const proposal = await detector.detect(
+      ctx('We’re going with Postgres over DynamoDB because relational integrity matters.'),
+    );
+
+    expect(proposal).not.toBeNull();
+    expect(proposal?.statement).toContain('Postgres');
+    expect(proposal?.alternatives[0]?.option).toBe('DynamoDB');
+  });
 });

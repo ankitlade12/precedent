@@ -4,7 +4,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Slack](https://img.shields.io/badge/Slack-Agent%20%2B%20MCP-4A154B.svg?logo=slack&logoColor=white)](https://api.slack.com/)
 [![Railway](https://img.shields.io/badge/Railway-deployed-0B0D0E.svg?logo=railway&logoColor=white)](https://railway.com/)
-[![Tests](https://img.shields.io/badge/tests-59%20passing-brightgreen.svg)](#reproducible-testing)
+[![Tests](https://img.shields.io/badge/tests-60%20passing-brightgreen.svg)](#reproducible-testing)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 > **A chat log tells you what was said. Precedent tells you what was decided — and whether it is still true.**
@@ -263,15 +263,17 @@ By default, the server exposes MCP at `http://localhost:3010/mcp`. Without an An
 3. Paste [`manifest.json`](manifest.json).
 4. Install the app to your Slack workspace.
 5. Copy the bot token, app-level token, and signing secret into `.env`.
-6. Start Precedent and invite the app to a test channel.
+6. Start Precedent. In each public test channel, run `/precedent onboard` once; in a private channel, run `/invite @Precedent` first.
 
 ### Usage
 
-1. Post an explicit commitment such as: `We are going with Postgres over DynamoDB because relational integrity matters.`
-2. Review and confirm the Precedent proposal card.
-3. Post a reversal: `We are switching to SQLite because a volunteer team should not carry the infrastructure burden.`
-4. Confirm the reversal and inspect the current-decision timeline.
-5. Ask Slackbot: `Before I propose moving back to Postgres, use Precedent to check the complete history.`
+1. Run `/precedent onboard` in a public channel to activate ambient capture. For a private channel, invite the app first with `/invite @Precedent`.
+2. Post an explicit commitment such as: `We are going with Postgres over DynamoDB because relational integrity matters.`
+3. Review and confirm the Precedent proposal card.
+4. If the message was posted before activation, run `/precedent log` to recover it.
+5. Post a reversal: `We are switching to SQLite because a volunteer team should not carry the infrastructure burden.`
+6. Confirm the reversal and inspect the current-decision timeline.
+7. Ask Slackbot: `Before I propose moving back to Postgres, use Precedent to check the complete history.`
 
 ## Reproducible Testing
 
@@ -296,7 +298,7 @@ Current verified result:
 
 ```text
 Test Files  14 passed (14)
-Tests       59 passed (59)
+Tests       60 passed (60)
 ```
 
 Coverage includes ledger deduplication, supersession, reversals, tamper detection, SQLite restart persistence, Claude proposal mapping, Slack Block Kit rendering, relitigation warnings, onboarding, MCP tools, production configuration, and invocation auditing.

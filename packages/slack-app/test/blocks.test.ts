@@ -174,9 +174,13 @@ describe('buildOnboardingBrief', () => {
   it('teaches an empty workspace how to create its first decision', () => {
     const rendered = JSON.stringify(buildOnboardingBrief([]));
     expect(rendered).toContain('Build your team’s decision memory');
-    expect(rendered).toContain('1 · Make a decision');
-    expect(rendered).toContain('2 · Review the proposal card');
-    expect(rendered).toContain('3 · Recall it anywhere');
+    expect(rendered).toContain('1 · Activate a channel');
+    expect(rendered).toContain('/precedent onboard');
+    expect(rendered).toContain('/invite @Precedent');
+    expect(rendered).toContain('2 · Make a decision');
+    expect(rendered).toContain('3 · Review the proposal card');
+    expect(rendered).toContain('4 · Recall it anywhere');
+    expect(rendered).toContain('/precedent log');
   });
 
   it('lists the current decisions for a newcomer', () => {
